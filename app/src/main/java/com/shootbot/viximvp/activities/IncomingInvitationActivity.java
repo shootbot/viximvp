@@ -18,9 +18,15 @@ import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.network.ApiClient;
 import com.shootbot.viximvp.network.ApiService;
 
+import org.jitsi.meet.sdk.JitsiMeetActivity;
+import org.jitsi.meet.sdk.JitsiMeetActivityInterface;
+import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,6 +42,7 @@ import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_CAN
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_REJECTED;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_RESPONSE;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITER_TOKEN;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_MEETING_ROOM;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_MEETING_TYPE;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_REGISTRATION_IDS;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_TYPE;
@@ -113,20 +120,33 @@ public class IncomingInvitationActivity extends AppCompatActivity {
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.isSuccessful()) {
                             if (type.equals(REMOTE_MSG_INVITATION_ACCEPTED)) {
-                                Toast.makeText(IncomingInvitationActivity.this, "Invitation accepted", Toast.LENGTH_SHORT).show();
+                                try {
+                                    URL serverUrl = new URL("http://meet.jit.si");
+                                    JitsiMeetConferenceOptions conferenceOptions = new JitsiMeetConferenceOptions.Builder()
+                                            .setServerURL(serverUrl)
+                                            .setWelcomePageEnabled(false)
+                                            .setRoom(getIntent().getStringExtra(REMOTE_MSG_MEETING_ROOM))
+                                            .build();
+                                    JitsiMeetActivity.launch(IncomingInvitationActivity.this, conferenceOptions);
+                                    finish();
+                                } catch (MalformedURLException e) {
+                                    Toast.makeText(IncomingInvitationActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }
                             } else {
                                 Toast.makeText(IncomingInvitationActivity.this, "Invitation rejected", Toast.LENGTH_SHORT).show();
+                                finish();
                             }
                         } else {
                             Toast.makeText(IncomingInvitationActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+                            finish();
                         }
-                        finish();
+
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                         Toast.makeText(IncomingInvitationActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                        finish();
                     }
                 });
     }

@@ -32,6 +32,8 @@ public class MessagingService extends FirebaseMessagingService {
             intent.putExtra(KEY_LAST_NAME, remoteMessage.getData().get(KEY_LAST_NAME));
             intent.putExtra(KEY_EMAIL, remoteMessage.getData().get(KEY_EMAIL));
             intent.putExtra(REMOTE_MSG_INVITER_TOKEN, remoteMessage.getData().get(REMOTE_MSG_INVITER_TOKEN));
+            intent.putExtra(REMOTE_MSG_MEETING_ROOM, remoteMessage.getData().get(REMOTE_MSG_MEETING_ROOM));
+
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             startActivity(intent);

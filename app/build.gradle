@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.shootbot.viximvp"
-        minSdkVersion 16
+        minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -49,6 +49,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation ('org.jitsi.react:jitsi-meet-sdk:2.+') { transitive = true }
 
     // firebase
     implementation 'com.google.firebase:firebase-messaging:20.1.0'

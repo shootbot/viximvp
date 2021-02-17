@@ -20,9 +20,15 @@ import com.shootbot.viximvp.network.ApiClient;
 import com.shootbot.viximvp.network.ApiService;
 import com.shootbot.viximvp.utilities.PreferenceManager;
 
+import org.jitsi.meet.sdk.JitsiMeetActivity;
+import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -31,6 +37,7 @@ import retrofit2.Response;
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
+import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_DATA;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_ACCEPTED;
@@ -38,6 +45,7 @@ import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_CAN
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_REJECTED;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_RESPONSE;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITER_TOKEN;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_MEETING_ROOM;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_MEETING_TYPE;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_REGISTRATION_IDS;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_TYPE;
@@ -46,7 +54,8 @@ import static com.shootbot.viximvp.utilities.Constants.getRemoteMessageHeaders;
 public class OutgoingInvitationActivity extends AppCompatActivity {
 
     private PreferenceManager preferenceManager;
-    private String inviterToken = null;
+    private String inviterToken;
+    private String meetingRoom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +118,10 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             data.put(KEY_LAST_NAME, preferenceManager.getString(KEY_LAST_NAME));
             data.put(KEY_EMAIL, preferenceManager.getString(KEY_EMAIL));
             data.put(REMOTE_MSG_INVITER_TOKEN, inviterToken);
+
+            // wtf
+            meetingRoom = preferenceManager.getString(KEY_USER_ID + "_" + UUID.randomUUID().toString().substring(0, 5));
+            data.put(REMOTE_MSG_MEETING_ROOM, meetingRoom);
 
             body.put(REMOTE_MSG_DATA, data);
             body.put(REMOTE_MSG_REGISTRATION_IDS, tokens);
@@ -174,7 +187,19 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String type = intent.getStringExtra(REMOTE_MSG_INVITATION_RESPONSE);
             if (REMOTE_MSG_INVITATION_ACCEPTED.equals(type)) {
-                Toast.makeText(context, "Invitation accepted", Toast.LENGTH_SHORT).show();
+                try {
+                    URL serverUrl = new URL("http://meet.jit.si");
+                    JitsiMeetConferenceOptions conferenceOptions = new JitsiMeetConferenceOptions.Builder()
+                            .setServerURL(serverUrl)
+                            .setWelcomePageEnabled(false)
+                            .setRoom(meetingRoom)
+                            .build();
+                    JitsiMeetActivity.launch(OutgoingInvitationActivity.this, conferenceOptions);
+                    finish();
+                } catch (MalformedURLException e) {
+                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    finish();
+                }
             } else if (REMOTE_MSG_INVITATION_REJECTED.equals(type)) {
                 Toast.makeText(context, "Invitation rejected", Toast.LENGTH_SHORT).show();
                 finish();
