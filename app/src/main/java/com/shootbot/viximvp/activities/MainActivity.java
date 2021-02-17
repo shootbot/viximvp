@@ -3,6 +3,7 @@ package com.shootbot.viximvp.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener  {
     private List<User> users;
     private UsersAdapter usersAdapter;
     private TextView textErrorMessage;
-    private ProgressBar usersProgressBar;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,23 +72,26 @@ public class MainActivity extends AppCompatActivity implements UsersListener  {
 
         RecyclerView usersRecyclerView = findViewById(R.id.usersRecyclerView);
         textErrorMessage = findViewById(R.id.textErrorMessage);
-        usersProgressBar = findViewById(R.id.usersProgressBar);
 
         users = new ArrayList<>();
         usersAdapter = new UsersAdapter(users, this);
         usersRecyclerView.setAdapter(usersAdapter);
 
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this::getUsers);
+
         getUsers();
     }
 
     private void getUsers() {
-        usersProgressBar.setVisibility(View.VISIBLE);
+        swipeRefreshLayout.setRefreshing(true);
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         database.collection(KEY_COLLECTION_USERS).get()
                 .addOnCompleteListener(task -> {
-                    usersProgressBar.setVisibility(View.GONE);
+                    swipeRefreshLayout.setRefreshing(false);
                     String myUserId = preferenceManager.getString(KEY_USER_ID);
                     if (task.isSuccessful() && task.getResult() != null) {
+                        users.clear();
                         for (QueryDocumentSnapshot snapshot : task.getResult()) {
                             if (myUserId.equals(snapshot.getId())) continue;
                             User user = new User();
@@ -147,11 +151,10 @@ public class MainActivity extends AppCompatActivity implements UsersListener  {
                     Toast.LENGTH_SHORT)
                     .show();
         } else {
-            Toast.makeText(
-                    this,
-                    "Video meeting with " + user.firstName + " " + user.lastName,
-                    Toast.LENGTH_SHORT)
-                    .show();
+            Intent i = new Intent(getApplicationContext(), OutgoingInvitationActivity.class);
+            i.putExtra("user", user);
+            i.putExtra("type", "video");
+            startActivity(i);
         }
     }
 

@@ -73,14 +73,4 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/layoutHeader"/>
 
-    <ProgressBar
-        android:id="@+id/usersProgressBar"
-        android:layout_width="@dimen/_25sdp"
-        android:layout_height="@dimen/_25sdp"
-        android:layout_marginTop="@dimen/_20sdp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutHeader"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
