@@ -1,6 +1,7 @@
 package com.shootbot.viximvp.network;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -11,7 +12,7 @@ public interface ApiService {
 
     @POST("send")
     Call<String> sendRemoteMessage(
-            @HeaderMap HashMap<String, String> headers,
+            @HeaderMap Map<String, String> headers,
             @Body String remoteBody
     );
 }

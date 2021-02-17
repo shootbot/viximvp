@@ -1,25 +1,36 @@
 package com.shootbot.viximvp.firebase;
 
-import android.util.Log;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.shootbot.viximvp.activities.IncomingInvitationActivity;
+
+import static com.shootbot.viximvp.utilities.Constants.*;
 
 public class MessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
-        // Log.d("FCM", "Token: " + token);
     }
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        // if (remoteMessage.getNotification() != null) {
-        //     Log.d("FCM", "Remote message received: " + remoteMessage.getNotification().getBody());
-        // }
+
+        String type = remoteMessage.getData().get(REMOTE_MSG_TYPE);
+
+        if (REMOTE_MSG_INVITATION.equals(type)) {
+            Intent intent = new Intent(getApplicationContext(), IncomingInvitationActivity.class);
+            intent.putExtra(REMOTE_MSG_MEETING_TYPE, remoteMessage.getData().get(REMOTE_MSG_MEETING_TYPE));
+            intent.putExtra(KEY_FIRST_NAME, remoteMessage.getData().get(KEY_FIRST_NAME));
+            intent.putExtra(KEY_LAST_NAME, remoteMessage.getData().get(KEY_LAST_NAME));
+            intent.putExtra(KEY_EMAIL, remoteMessage.getData().get(KEY_EMAIL));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
     }
 }
