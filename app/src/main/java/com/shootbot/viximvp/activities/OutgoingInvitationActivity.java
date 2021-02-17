@@ -56,6 +56,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
     private PreferenceManager preferenceManager;
     private String inviterToken;
     private String meetingRoom;
+    private String meetingType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +71,12 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
         });
 
         ImageView imageMeetingType = findViewById(R.id.imageMeetingType);
-        String meetingType = getIntent().getStringExtra("type");
+        meetingType = getIntent().getStringExtra("type");
 
         if ("video".equals(meetingType)) {
             imageMeetingType.setImageResource(R.drawable.ic_video);
+        } else {
+            imageMeetingType.setImageResource(R.drawable.ic_audio);
         }
 
         TextView textFirstChar = findViewById(R.id.textFirstChar);
@@ -189,12 +192,15 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             if (REMOTE_MSG_INVITATION_ACCEPTED.equals(type)) {
                 try {
                     URL serverUrl = new URL("http://meet.jit.si");
-                    JitsiMeetConferenceOptions conferenceOptions = new JitsiMeetConferenceOptions.Builder()
-                            .setServerURL(serverUrl)
-                            .setWelcomePageEnabled(false)
-                            .setRoom(meetingRoom)
-                            .build();
-                    JitsiMeetActivity.launch(OutgoingInvitationActivity.this, conferenceOptions);
+                    JitsiMeetConferenceOptions.Builder builder = new JitsiMeetConferenceOptions.Builder();
+                    builder.setServerURL(serverUrl);
+                    builder.setWelcomePageEnabled(false);
+                    builder.setRoom(meetingRoom);
+                    if (meetingType.equals("audio")) {
+                        builder.setVideoMuted(true);
+                    }
+
+                    JitsiMeetActivity.launch(OutgoingInvitationActivity.this, builder.build());
                     finish();
                 } catch (MalformedURLException e) {
                     Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
