@@ -1,24 +1,23 @@
 package com.shootbot.viximvp.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
-import com.google.protobuf.Api;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.models.User;
 import com.shootbot.viximvp.network.ApiClient;
 import com.shootbot.viximvp.network.ApiService;
-import com.shootbot.viximvp.utilities.Constants;
 import com.shootbot.viximvp.utilities.PreferenceManager;
 
 import org.json.JSONArray;
@@ -29,7 +28,20 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.shootbot.viximvp.utilities.Constants.*;
+import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
+import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
+import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_DATA;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_ACCEPTED;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_CANCELED;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_REJECTED;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_RESPONSE;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITER_TOKEN;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_MEETING_TYPE;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_REGISTRATION_IDS;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_TYPE;
+import static com.shootbot.viximvp.utilities.Constants.getRemoteMessageHeaders;
 
 public class OutgoingInvitationActivity extends AppCompatActivity {
 
@@ -67,11 +79,20 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
         }
 
         ImageView imageStopInvitation = findViewById(R.id.imageStopInvitation);
-        imageStopInvitation.setOnClickListener(v -> onBackPressed());
+        imageStopInvitation.setOnClickListener(v -> {
+            if (user != null) {
+                cancelInvitation(user.token);
+            }
+        });
 
-        if (meetingType != null && user != null) {
-            initiateMeeting(meetingType, user.token);
-        }
+        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                inviterToken = task.getResult().getToken();
+                if (meetingType != null && user != null) {
+                    initiateMeeting(meetingType, user.token);
+                }
+            }
+        });
     }
 
     private void initiateMeeting(String meetingType, String receiverToken) {
@@ -109,6 +130,9 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             if (type.equals(REMOTE_MSG_INVITATION)) {
                                 Toast.makeText(OutgoingInvitationActivity.this, "Invitation sent successfully", Toast.LENGTH_SHORT).show();
+                            } else if (type.equals(REMOTE_MSG_INVITATION_RESPONSE)) {
+                                Toast.makeText(OutgoingInvitationActivity.this, "Invitation canceled", Toast.LENGTH_SHORT).show();
+                                finish();
                             }
                         } else {
                             Toast.makeText(OutgoingInvitationActivity.this, response.message(), Toast.LENGTH_SHORT).show();
@@ -122,5 +146,54 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
                         finish();
                     }
                 });
+    }
+
+    private void cancelInvitation(String receiverToken) {
+        try {
+            JSONArray tokens = new JSONArray();
+            tokens.put(receiverToken);
+
+            JSONObject body = new JSONObject();
+            JSONObject data = new JSONObject();
+
+            data.put(REMOTE_MSG_TYPE, REMOTE_MSG_INVITATION_RESPONSE);
+            data.put(REMOTE_MSG_INVITATION_RESPONSE, REMOTE_MSG_INVITATION_CANCELED);
+
+            body.put(REMOTE_MSG_DATA, data);
+            body.put(REMOTE_MSG_REGISTRATION_IDS, tokens);
+
+            sendRemoteMessage(body.toString(), REMOTE_MSG_INVITATION_RESPONSE);
+        } catch (JSONException e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    private BroadcastReceiver invitationResponseReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String type = intent.getStringExtra(REMOTE_MSG_INVITATION_RESPONSE);
+            if (REMOTE_MSG_INVITATION_ACCEPTED.equals(type)) {
+                Toast.makeText(context, "Invitation accepted", Toast.LENGTH_SHORT).show();
+            } else if (REMOTE_MSG_INVITATION_REJECTED.equals(type)) {
+                Toast.makeText(context, "Invitation rejected", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(
+                invitationResponseReceiver,
+                new IntentFilter(REMOTE_MSG_INVITATION_RESPONSE)
+        );
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(invitationResponseReceiver);
     }
 }
