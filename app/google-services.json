@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "517652573618",
+    "project_id": "vixi-mvp",
+    "storage_bucket": "vixi-mvp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:517652573618:android:528bc24470c56ee79b08ab",
+        "android_client_info": {
+          "package_name": "com.shootbot.viximvp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "517652573618-sf50f8bf7hs5134mstcmaa73tve89osu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3isy-nmIO5dNHsaDb3wMM9FQfldQbwCI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "517652573618-sf50f8bf7hs5134mstcmaa73tve89osu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
