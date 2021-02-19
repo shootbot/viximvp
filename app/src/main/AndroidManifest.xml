@@ -13,14 +13,6 @@
         android:theme="@style/appTheme"
         android:usesCleartextTraffic="true">
 
-<!--        <activity android:name=".activities.MainActivity2">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
-
         <activity android:name=".activities.OutgoingInvitationActivity" android:screenOrientation="portrait"/>
 
         <activity android:name=".activities.IncomingInvitationActivity" android:screenOrientation="portrait"/>
@@ -52,6 +44,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-    </application>
 
+    </application>
 </manifest>
