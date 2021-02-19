@@ -2,6 +2,7 @@ package com.shootbot.viximvp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
@@ -76,6 +77,7 @@ public class SignInActivity extends AppCompatActivity {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0) {
+                        Log.d("FCM", "Sign in ok, size() = " + task.getResult().getDocuments().size());
                         DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
                         preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
                         preferenceManager.putString(KEY_USER_ID, snapshot.getId());
@@ -88,6 +90,7 @@ public class SignInActivity extends AppCompatActivity {
                     } else {
                         signInProgressBar.setVisibility(View.INVISIBLE);
                         buttonSignIn.setVisibility(View.VISIBLE);
+                        Log.d("FCM", "Unable to sign in");
                         Toast.makeText(SignInActivity.this, "Unable to sign in", Toast.LENGTH_SHORT).show();
                     }
                 });

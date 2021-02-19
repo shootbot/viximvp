@@ -23,7 +23,7 @@ import com.shootbot.viximvp.utilities.PreferenceManager;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
+import static com.shootbot.viximvp.utilities.Constants.*;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -76,19 +76,19 @@ public class SignUpActivity extends AppCompatActivity {
 
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         Map<String, Object> user = new HashMap<>();
-        user.put(Constants.KEY_FIRST_NAME, inputFirstName.getText().toString());
-        user.put(Constants.KEY_LAST_NAME, inputLastName.getText().toString());
-        user.put(Constants.KEY_EMAIL, inputEmail.getText().toString());
-        user.put(Constants.KEY_PASSWORD, inputPassword.getText().toString());
+        user.put(KEY_FIRST_NAME, inputFirstName.getText().toString());
+        user.put(KEY_LAST_NAME, inputLastName.getText().toString());
+        user.put(KEY_EMAIL, inputEmail.getText().toString());
+        user.put(KEY_PASSWORD, inputPassword.getText().toString());
 
         database.collection(Constants.KEY_COLLECTION_USERS)
                 .add(user)
                 .addOnSuccessListener(documentReference -> {
                     preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
                     preferenceManager.putString(KEY_USER_ID, documentReference.getId());
-                    preferenceManager.putString(Constants.KEY_FIRST_NAME, inputFirstName.getText().toString());
-                    preferenceManager.putString(Constants.KEY_LAST_NAME, inputLastName.getText().toString());
-                    preferenceManager.putString(Constants.KEY_EMAIL, inputEmail.getText().toString());
+                    preferenceManager.putString(KEY_FIRST_NAME, inputFirstName.getText().toString());
+                    preferenceManager.putString(KEY_LAST_NAME, inputLastName.getText().toString());
+                    preferenceManager.putString(KEY_EMAIL, inputEmail.getText().toString());
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);

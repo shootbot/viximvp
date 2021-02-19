@@ -2,7 +2,9 @@ package com.shootbot.viximvp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +17,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.adapters.UsersAdapter;
 import com.shootbot.viximvp.listeners.UsersListener;
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
     private UsersAdapter usersAdapter;
     private TextView textErrorMessage;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private ImageView imageConference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
 
         preferenceManager = new PreferenceManager(getApplicationContext());
 
+        imageConference = findViewById(R.id.imageConference);
+
         TextView textTitle = findViewById(R.id.textTitle);
         textTitle.setText(String.format(
                 "%s %s",
@@ -54,14 +60,10 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
                 preferenceManager.getString(KEY_LAST_NAME)
         ));
 
-        findViewById(R.id.textSignOut).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signOut();
-            }
-        });
+        findViewById(R.id.textSignOut).setOnClickListener(v -> signOut());
 
         FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
+            Log.d("FCM", "MainActivity task complete, succes: " + task.isSuccessful());
             if (task.isSuccessful() && task.getResult() != null) {
                 sendFcmTokenToDatabase(task.getResult().getToken());
             }
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
     }
 
     private void getUsers() {
+        textErrorMessage.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setRefreshing(true);
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         database.collection(KEY_COLLECTION_USERS).get()
@@ -96,17 +99,19 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
                             user.lastName = snapshot.getString(KEY_LAST_NAME);
                             user.email = snapshot.getString(KEY_EMAIL);
                             user.token = snapshot.getString(KEY_FCM_TOKEN);
-                            users.add(user);
+                            if (user.token != null) {
+                                users.add(user);
+                            }
                         }
-                        if (users.size() > 0) {
-                            usersAdapter.notifyDataSetChanged();
-                        } else {
-                            textErrorMessage.setText(String.format("%s", "No users available"));
-                            textErrorMessage.setVisibility(View.VISIBLE);
-                        }
+                        usersAdapter.notifyDataSetChanged();
+                        // if (users.isEmpty()) {
+                        //     textErrorMessage.setText(String.format("%s", "No users available"));
+                        //     textErrorMessage.setVisibility(View.VISIBLE);
+                        // }
                     } else {
-                        textErrorMessage.setText(String.format("%s", "No users available"));
-                        textErrorMessage.setVisibility(View.VISIBLE);
+                        Toast.makeText(this, "Error: can't update user list", Toast.LENGTH_SHORT).show();
+                        // textErrorMessage.setText(String.format("%s", "No users available"));
+                        // textErrorMessage.setVisibility(View.VISIBLE);
                     }
                 });
     }
@@ -118,8 +123,14 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
                 .document(preferenceManager.getString(KEY_USER_ID));
         documentReference
                 .update(KEY_FCM_TOKEN, token)
-                // .addOnSuccessListener(aVoid -> Toast.makeText(MainActivity.this, "Token updated successfully", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("FCM", "Token updated successfully");
+                    Toast.makeText(MainActivity.this, "Token updated successfully", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.d("FCM", "Unable to send token: " + e.getMessage());
+                    Toast.makeText(MainActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void signOut() {
@@ -148,10 +159,10 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
                     Toast.LENGTH_SHORT)
                     .show();
         } else {
-            Intent i = new Intent(getApplicationContext(), OutgoingInvitationActivity.class);
-            i.putExtra("user", user);
-            i.putExtra("type", "video");
-            startActivity(i);
+            Intent intent = new Intent(getApplicationContext(), OutgoingInvitationActivity.class);
+            intent.putExtra("user", user);
+            intent.putExtra("type", "video");
+            startActivity(intent);
         }
     }
 
@@ -168,6 +179,22 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
             intent.putExtra("user", user);
             intent.putExtra("type", "audio");
             startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onMultipleUsersAction(boolean isMultipleUsersSelected) {
+        if (isMultipleUsersSelected) {
+            imageConference.setVisibility(View.VISIBLE);
+            imageConference.setOnClickListener(v -> {
+                Intent intent = new Intent(getApplicationContext(), OutgoingInvitationActivity.class);
+                intent.putExtra("selectedUsers", new Gson().toJson(usersAdapter.getSelectedUsers()));
+                intent.putExtra("type", "video");
+                intent.putExtra("isMultiple", "true");
+                startActivity(intent);
+            });
+        } else {
+            imageConference.setVisibility(View.GONE);
         }
     }
 }

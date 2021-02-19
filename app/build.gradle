@@ -49,7 +49,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation ('org.jitsi.react:jitsi-meet-sdk:2.+') { transitive = true }
+    implementation ('org.jitsi.react:jitsi-meet-sdk:2.8.2') { transitive = true }
 
     // firebase
     implementation 'com.google.firebase:firebase-messaging:20.1.0'
