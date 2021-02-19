@@ -126,7 +126,7 @@ public class IncomingInvitationActivity extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             if (type.equals(REMOTE_MSG_INVITATION_ACCEPTED)) {
                                 try {
-                                    URL serverUrl = new URL("http://meet.jit.si");
+                                    URL serverUrl = new URL("https://meet.jit.si");
                                     JitsiMeetConferenceOptions.Builder builder = new JitsiMeetConferenceOptions.Builder();
                                     builder.setServerURL(serverUrl);
                                     builder.setWelcomePageEnabled(false);
@@ -149,7 +149,6 @@ public class IncomingInvitationActivity extends AppCompatActivity {
                             Toast.makeText(IncomingInvitationActivity.this, response.message(), Toast.LENGTH_SHORT).show();
                             finish();
                         }
-
                     }
 
                     @Override

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -105,7 +106,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
                 Type type = new TypeToken<ArrayList<User>>() {
                 }.getType();
                 List<User> receivers = new Gson().fromJson(getIntent().getStringExtra("selectedUsers"), type);
-                cancelInvitation( null, receivers);
+                cancelInvitation(null, receivers);
             } else {
                 if (user != null) {
                     cancelInvitation(user.token, null);
@@ -167,7 +168,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             data.put(REMOTE_MSG_INVITER_TOKEN, inviterToken);
 
             // wtf substring(0, 5) выглядит подозрительно
-            meetingRoom = preferenceManager.getString(KEY_USER_ID + "_" + UUID.randomUUID().toString().substring(0, 5));
+            meetingRoom = preferenceManager.getString(KEY_USER_ID) + "_" + UUID.randomUUID().toString().substring(0, 5);
             data.put(REMOTE_MSG_MEETING_ROOM, meetingRoom);
 
             body.put(REMOTE_MSG_DATA, data);
@@ -244,14 +245,26 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             String type = intent.getStringExtra(REMOTE_MSG_INVITATION_RESPONSE);
             if (REMOTE_MSG_INVITATION_ACCEPTED.equals(type)) {
                 try {
-                    URL serverUrl = new URL("http://meet.jit.si");
+                    // launchConference(OutgoingInvitationActivity.this);
+                    //
+                    // URL serverURL = new URL("https://meet.jit.si");
+                    // JitsiMeetConferenceOptions options = new JitsiMeetConferenceOptions.Builder()
+                    //         .setServerURL(serverURL)
+                    //         .setWelcomePageEnabled(false)
+                    //         .setRoom("qweewq")
+                    //         .build();
+                    // JitsiMeetActivity.launch(context, options);
+
+
+                    URL serverUrl = new URL("https://meet.jit.si");
                     JitsiMeetConferenceOptions.Builder builder = new JitsiMeetConferenceOptions.Builder();
                     builder.setServerURL(serverUrl);
                     builder.setWelcomePageEnabled(false);
+                    Log.d("JITSI", "meetingRoom: " + meetingRoom);
                     builder.setRoom(meetingRoom);
-                    if (meetingType.equals("audio")) {
-                        builder.setVideoMuted(true);
-                    }
+                    // if (meetingType.equals("audio")) {
+                    //     builder.setVideoMuted(true);
+                    // }
 
                     JitsiMeetActivity.launch(OutgoingInvitationActivity.this, builder.build());
                     finish();
@@ -269,6 +282,16 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void launchConference(Context context) throws MalformedURLException {
+        URL serverURL = new URL("https://meet.jit.si");
+        JitsiMeetConferenceOptions options = new JitsiMeetConferenceOptions.Builder()
+                .setServerURL(serverURL)
+                .setWelcomePageEnabled(false)
+                .setRoom("qweewq")
+                .build();
+        JitsiMeetActivity.launch(context, options);
+    }
 
     @Override
     protected void onStart() {
