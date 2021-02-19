@@ -15,7 +15,7 @@
             android:id="@+id/layoutHeader"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_150sdp"
-            android:background="@color/colorPrimary"
+            android:background="@color/vixiMedium"
             android:gravity="center"
             android:orientation="vertical"
             app:layout_constraintTop_toTopOf="parent">
@@ -188,7 +188,7 @@
             android:padding="@dimen/_6sdp"
             android:text="@string/sign_up"
             android:textAllCaps="true"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/vixiMedium"
             android:textSize="@dimen/_14ssp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textNoAccount"/>

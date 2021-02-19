@@ -4,6 +4,6 @@
 
     <gradient
         android:angle="270"
-        android:endColor="@color/colorMeetingInvitationEnd"
-        android:startColor="@color/colorMeetingInvitationStart"/>
+        android:endColor="@color/vixiLight"
+        android:startColor="@color/vixiDark"/>
 </shape>

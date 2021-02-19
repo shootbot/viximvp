@@ -46,6 +46,7 @@
             android:background="@drawable/background_meeting_invitation_user_icon"
             android:fontFamily="@font/ubuntu_bold"
             android:includeFontPadding="false"
+            android:gravity="center"
             android:textAllCaps="true"
             android:textColor="@color/colorPrimaryText"
             android:textSize="@dimen/_30sdp" />

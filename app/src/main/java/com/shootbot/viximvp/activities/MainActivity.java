@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
                 .update(KEY_FCM_TOKEN, token)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("FCM", "Token updated successfully");
-                    Toast.makeText(MainActivity.this, "Token updated successfully", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(MainActivity.this, "Token updated successfully", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
                     Log.d("FCM", "Unable to send token: " + e.getMessage());
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
     }
 
     private void signOut() {
-        Toast.makeText(this, "Signing out...", Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this, "Signing out...", Toast.LENGTH_SHORT).show();
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         DocumentReference documentReference = database
                 .collection(KEY_COLLECTION_USERS)
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
                 Intent intent = new Intent(getApplicationContext(), OutgoingInvitationActivity.class);
                 intent.putExtra("selectedUsers", new Gson().toJson(usersAdapter.getSelectedUsers()));
                 intent.putExtra("type", "video");
-                intent.putExtra("isMultiple", "true");
+                intent.putExtra("isMultiple", true);
                 startActivity(intent);
             });
         } else {

@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.network.ApiClient;
 import com.shootbot.viximvp.network.ApiService;
+import com.shootbot.viximvp.utilities.Jitsi;
 
 import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetActivityInterface;
@@ -126,23 +127,17 @@ public class IncomingInvitationActivity extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             if (type.equals(REMOTE_MSG_INVITATION_ACCEPTED)) {
                                 try {
-                                    URL serverUrl = new URL("https://meet.jit.si");
-                                    JitsiMeetConferenceOptions.Builder builder = new JitsiMeetConferenceOptions.Builder();
-                                    builder.setServerURL(serverUrl);
-                                    builder.setWelcomePageEnabled(false);
-                                    builder.setRoom(getIntent().getStringExtra(REMOTE_MSG_MEETING_ROOM));
-                                    if (meetingType.equals("audio")) {
-                                        builder.setVideoMuted(true);
-                                    }
-
-                                    JitsiMeetActivity.launch(IncomingInvitationActivity.this, builder.build());
+                                    Jitsi.launchConference(
+                                            IncomingInvitationActivity.this,
+                                            getIntent().getStringExtra(REMOTE_MSG_MEETING_ROOM),
+                                            meetingType);
                                     finish();
                                 } catch (MalformedURLException e) {
                                     Toast.makeText(IncomingInvitationActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                                     finish();
                                 }
                             } else {
-                                Toast.makeText(IncomingInvitationActivity.this, "Invitation rejected", Toast.LENGTH_SHORT).show();
+                                // Toast.makeText(IncomingInvitationActivity.this, "Invitation rejected", Toast.LENGTH_SHORT).show();
                                 finish();
                             }
                         } else {
@@ -163,7 +158,7 @@ public class IncomingInvitationActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String type = intent.getStringExtra(REMOTE_MSG_INVITATION_RESPONSE);
             if (REMOTE_MSG_INVITATION_CANCELED.equals(type)) {
-                Toast.makeText(context, "Invitation canceled", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "Invitation canceled", Toast.LENGTH_SHORT).show();
                 finish();
             }
         }

@@ -11,7 +11,7 @@
         android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:background="@color/colorPrimary"
+        android:background="@color/vixiMedium"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="@dimen/_8sdp"
@@ -284,7 +284,7 @@
                 android:padding="@dimen/_6sdp"
                 android:text="@string/sign_in"
                 android:textAllCaps="true"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/vixiMedium"
                 android:textSize="@dimen/_14ssp"
                 app:layout_constraintBottom_toBottomOf="parent" />
 

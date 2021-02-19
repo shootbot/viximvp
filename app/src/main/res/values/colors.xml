@@ -20,4 +20,8 @@
     <color name="colorMeetingInvitationStart">#FF4004BB</color>
     <color name="colorMeetingInvitationEnd">#FF8A1AAA</color>
 
+    <color name="vixiDark">#FF264883</color>
+    <color name="vixiMedium">#FF3873B9</color>
+    <color name="vixiLight">#FF73C4EF</color>
+
 </resources>

@@ -22,6 +22,7 @@ import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.models.User;
 import com.shootbot.viximvp.network.ApiClient;
 import com.shootbot.viximvp.network.ApiService;
+import com.shootbot.viximvp.utilities.Jitsi;
 import com.shootbot.viximvp.utilities.PreferenceManager;
 
 import org.jitsi.meet.sdk.JitsiMeetActivity;
@@ -190,9 +191,9 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.isSuccessful()) {
                             if (type.equals(REMOTE_MSG_INVITATION)) {
-                                Toast.makeText(OutgoingInvitationActivity.this, "Invitation sent successfully", Toast.LENGTH_SHORT).show();
+                                // Toast.makeText(OutgoingInvitationActivity.this, "Invitation sent successfully", Toast.LENGTH_SHORT).show();
                             } else if (type.equals(REMOTE_MSG_INVITATION_RESPONSE)) {
-                                Toast.makeText(OutgoingInvitationActivity.this, "Invitation canceled", Toast.LENGTH_SHORT).show();
+                                // Toast.makeText(OutgoingInvitationActivity.this, "Invitation canceled", Toast.LENGTH_SHORT).show();
                                 finish();
                             }
                         } else {
@@ -245,28 +246,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             String type = intent.getStringExtra(REMOTE_MSG_INVITATION_RESPONSE);
             if (REMOTE_MSG_INVITATION_ACCEPTED.equals(type)) {
                 try {
-                    // launchConference(OutgoingInvitationActivity.this);
-                    //
-                    // URL serverURL = new URL("https://meet.jit.si");
-                    // JitsiMeetConferenceOptions options = new JitsiMeetConferenceOptions.Builder()
-                    //         .setServerURL(serverURL)
-                    //         .setWelcomePageEnabled(false)
-                    //         .setRoom("qweewq")
-                    //         .build();
-                    // JitsiMeetActivity.launch(context, options);
-
-
-                    URL serverUrl = new URL("https://meet.jit.si");
-                    JitsiMeetConferenceOptions.Builder builder = new JitsiMeetConferenceOptions.Builder();
-                    builder.setServerURL(serverUrl);
-                    builder.setWelcomePageEnabled(false);
-                    Log.d("JITSI", "meetingRoom: " + meetingRoom);
-                    builder.setRoom(meetingRoom);
-                    // if (meetingType.equals("audio")) {
-                    //     builder.setVideoMuted(true);
-                    // }
-
-                    JitsiMeetActivity.launch(OutgoingInvitationActivity.this, builder.build());
+                    Jitsi.launchConference(OutgoingInvitationActivity.this, meetingRoom, meetingType);
                     finish();
                 } catch (MalformedURLException e) {
                     Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -275,23 +255,12 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             } else if (REMOTE_MSG_INVITATION_REJECTED.equals(type)) {
                 rejectionCount++;
                 if (rejectionCount == totalReceivers) {
-                    Toast.makeText(context, "Invitation rejected", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(context, "Invitation rejected", Toast.LENGTH_SHORT).show();
                     finish();
                 }
-
             }
         }
     };
-
-    private void launchConference(Context context) throws MalformedURLException {
-        URL serverURL = new URL("https://meet.jit.si");
-        JitsiMeetConferenceOptions options = new JitsiMeetConferenceOptions.Builder()
-                .setServerURL(serverURL)
-                .setWelcomePageEnabled(false)
-                .setRoom("qweewq")
-                .build();
-        JitsiMeetActivity.launch(context, options);
-    }
 
     @Override
     protected void onStart() {
