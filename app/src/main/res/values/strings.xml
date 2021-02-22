@@ -20,4 +20,10 @@
     <string name="sign_out">Sign out</string>
     <string name="incoming_meeting_invitation">Incoming Meeting Invitation</string>
     <string name="sending_meeting_invitation">Sending meeting invitation</string>
+
+    <string name="battery_optimization_enabled">Battery optimization is enabled. It can interrupt running background services.</string>
+    <string name="disable">Disable</string>
+    <string name="warning">Warning</string>
+    <string name="is_not_available"> is not available for meeting</string>
+    <string name="unable_to_sign_out">Unable to sign out</string>
 </resources>

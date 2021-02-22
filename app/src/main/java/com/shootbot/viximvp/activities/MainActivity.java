@@ -1,13 +1,18 @@
 package com.shootbot.viximvp.activities;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -43,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
     private TextView textErrorMessage;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ImageView imageConference;
+
+    private int REQUEST_CODE_BATTERY_OPTIMIZATION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         swipeRefreshLayout.setOnRefreshListener(this::getUsers);
 
         getUsers();
+        checkForBatteryOptimizations();
     }
 
     private void getUsers() {
@@ -147,40 +155,26 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
                     startActivity(new Intent(getApplicationContext(), SignInActivity.class));
                     finish();
                 })
-                .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Unable to sign out", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(MainActivity.this, R.string.unable_to_sign_out, Toast.LENGTH_SHORT).show());
     }
 
     @Override
-    public void initiateVideoMeeting(User user) {
+    public void initiateMeeting(User user, String meetingType) {
         if (user.token == null || user.token.trim().isEmpty()) {
             Toast.makeText(
                     this,
-                    user.firstName + " " + user.lastName + " is not available for meeting",
+                    user.firstName + " " + user.lastName + getString(R.string.is_not_available),
                     Toast.LENGTH_SHORT)
                     .show();
         } else {
             Intent intent = new Intent(getApplicationContext(), OutgoingInvitationActivity.class);
             intent.putExtra("user", user);
-            intent.putExtra("type", "video");
+            intent.putExtra("type", meetingType);
             startActivity(intent);
         }
     }
 
-    @Override
-    public void initiateAudioMeeting(User user) {
-        if (user.token == null || user.token.trim().isEmpty()) {
-            Toast.makeText(
-                    this,
-                    user.firstName + " " + user.lastName + " is not available for meeting",
-                    Toast.LENGTH_SHORT)
-                    .show();
-        } else {
-            Intent intent = new Intent(getApplicationContext(), OutgoingInvitationActivity.class);
-            intent.putExtra("user", user);
-            intent.putExtra("type", "audio");
-            startActivity(intent);
-        }
-    }
+
 
     @Override
     public void onMultipleUsersAction(boolean isMultipleUsersSelected) {
@@ -195,6 +189,31 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
             });
         } else {
             imageConference.setVisibility(View.GONE);
+        }
+    }
+
+    private void checkForBatteryOptimizations() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+            if (!powerManager.isIgnoringBatteryOptimizations(getPackageName())) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.warning);
+                builder.setMessage(R.string.battery_optimization_enabled);
+                builder.setPositiveButton(R.string.disable, (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                    startActivityForResult(intent, REQUEST_CODE_BATTERY_OPTIMIZATION);
+                });
+                builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+                builder.create().show();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_BATTERY_OPTIMIZATION) {
+            checkForBatteryOptimizations();
         }
     }
 }

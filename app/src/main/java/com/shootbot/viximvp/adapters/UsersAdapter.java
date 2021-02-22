@@ -75,8 +75,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
             textFirstChar.setText(user.firstName.substring(0, 1));
             textUsername.setText(String.format("%s %s", user.firstName, user.lastName));
             textEmail.setText(user.email);
-            imageAudioMeeting.setOnClickListener(v -> usersListener.initiateAudioMeeting(user));
-            imageVideoMeeting.setOnClickListener(v -> usersListener.initiateVideoMeeting(user));
+            imageAudioMeeting.setOnClickListener(v -> usersListener.initiateMeeting(user, "audio"));
+            imageVideoMeeting.setOnClickListener(v -> usersListener.initiateMeeting(user, "video"));
 
             userContainer.setOnLongClickListener(v -> {
                 if (imageSelected.getVisibility() != View.VISIBLE) {
