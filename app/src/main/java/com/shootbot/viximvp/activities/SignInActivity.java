@@ -56,7 +56,7 @@ public class SignInActivity extends AppCompatActivity {
         buttonSignIn.setOnClickListener(v -> {
             if (inputEmail.getText().toString().trim().isEmpty()) {
                 Toast.makeText(SignInActivity.this, "Enter email", Toast.LENGTH_SHORT).show();
-            } else if (Patterns.EMAIL_ADDRESS.matcher(inputEmail.getText().toString()).matches()) {
+            } else if (!Patterns.EMAIL_ADDRESS.matcher(inputEmail.getText().toString()).matches()) {
                 Toast.makeText(SignInActivity.this, "Enter valid email", Toast.LENGTH_SHORT).show();
             } else if (inputPassword.getText().toString().trim().isEmpty()) {
                 Toast.makeText(SignInActivity.this, "Enter password", Toast.LENGTH_SHORT).show();
