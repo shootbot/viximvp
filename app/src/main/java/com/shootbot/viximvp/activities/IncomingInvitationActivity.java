@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,17 +16,13 @@ import android.widget.Toast;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.network.ApiClient;
 import com.shootbot.viximvp.network.ApiService;
-import com.shootbot.viximvp.utilities.Jitsi;
+import com.shootbot.viximvp.utilities.Ut;
 
-import org.jitsi.meet.sdk.JitsiMeetActivity;
-import org.jitsi.meet.sdk.JitsiMeetActivityInterface;
-import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,7 +32,6 @@ import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_DATA;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_ACCEPTED;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_CANCELED;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_REJECTED;
@@ -127,7 +121,7 @@ public class IncomingInvitationActivity extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             if (type.equals(REMOTE_MSG_INVITATION_ACCEPTED)) {
                                 try {
-                                    Jitsi.launchConference(
+                                    Ut.launchConference(
                                             IncomingInvitationActivity.this,
                                             getIntent().getStringExtra(REMOTE_MSG_MEETING_ROOM),
                                             meetingType);

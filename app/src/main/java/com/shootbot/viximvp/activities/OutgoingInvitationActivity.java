@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,18 +21,15 @@ import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.models.User;
 import com.shootbot.viximvp.network.ApiClient;
 import com.shootbot.viximvp.network.ApiService;
-import com.shootbot.viximvp.utilities.Jitsi;
 import com.shootbot.viximvp.utilities.PreferenceManager;
+import com.shootbot.viximvp.utilities.Ut;
 
-import org.jitsi.meet.sdk.JitsiMeetActivity;
-import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -246,7 +242,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             String type = intent.getStringExtra(REMOTE_MSG_INVITATION_RESPONSE);
             if (REMOTE_MSG_INVITATION_ACCEPTED.equals(type)) {
                 try {
-                    Jitsi.launchConference(OutgoingInvitationActivity.this, meetingRoom, meetingType);
+                    Ut.launchConference(OutgoingInvitationActivity.this, meetingRoom, meetingType);
                     finish();
                 } catch (MalformedURLException e) {
                     Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();

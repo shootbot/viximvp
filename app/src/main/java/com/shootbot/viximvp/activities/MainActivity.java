@@ -174,8 +174,6 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         }
     }
 
-
-
     @Override
     public void onMultipleUsersAction(boolean isMultipleUsersSelected) {
         if (isMultipleUsersSelected) {

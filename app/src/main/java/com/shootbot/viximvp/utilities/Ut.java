@@ -7,11 +7,15 @@ import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Properties;
 
-public class Jitsi {
+public class Ut {
 
     public static void launchConference(Context context, String room, String type) throws MalformedURLException {
-        URL serverUrl = new URL("https://meet.jit.si");
+        // постоянно будет читать файл, нужно исправить
+        PropertyReader pr = new PropertyReader(context, "app.properties");
+
+        URL serverUrl = new URL("https://" + pr.getProperty("conference_server")); // "https://meet.jit.si"
         JitsiMeetConferenceOptions.Builder builder = new JitsiMeetConferenceOptions.Builder();
         builder.setServerURL(serverUrl);
         builder.setWelcomePageEnabled(false);
@@ -23,5 +27,6 @@ public class Jitsi {
 
         JitsiMeetActivity.launch(context, builder.build());
     }
+
 
 }
