@@ -20,26 +20,11 @@
             android:orientation="vertical"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/ubuntu_bold"
-                android:includeFontPadding="false"
-                android:text="@string/welcome_to"
-                android:textColor="@color/colorTextIcons"
-                android:textSize="@dimen/_16ssp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_4sdp"
-                android:fontFamily="@font/ubuntu_bold"
-                android:includeFontPadding="false"
-                android:text="@string/video_meeting_conference_app"
-                android:textColor="@color/colorTextIcons"
-                android:textSize="@dimen/_16ssp" />
-
-
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="match_parent"
+                android:layout_height="96dp"
+                app:srcCompat="@mipmap/ic_logo" />
         </LinearLayout>
 
         <TextView

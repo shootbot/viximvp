@@ -26,7 +26,7 @@
         android:id="@+id/imageSelected"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/background_user_icon"
+        android:background="@drawable/background_meeting_invitation_user_icon"
         android:contentDescription="@string/app_name"
         android:padding="@dimen/_3sdp"
         android:src="@drawable/ic_accept"

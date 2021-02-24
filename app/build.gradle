@@ -2,6 +2,7 @@
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -53,9 +54,20 @@ dependencies {
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
+
+
     implementation ('org.jitsi.react:jitsi-meet-sdk:3.1.0') { transitive = true }
 
+    // Import the BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:26.5.0')
+
+    // Declare the dependencies for the Crashlytics and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-analytics'
+    // Import the BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:26.5.0')
     // firebase
-    implementation 'com.google.firebase:firebase-messaging:20.1.0'
+    implementation 'com.google.firebase:firebase-messaging:21.0.1'
     implementation 'com.google.firebase:firebase-firestore:22.1.0'
 }

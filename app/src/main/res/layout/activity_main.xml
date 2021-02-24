@@ -19,6 +19,14 @@
        android:paddingEnd="@dimen/_8sdp"
        app:layout_constraintTop_toTopOf="parent">
 
+       <ImageView
+           android:id="@+id/imageView"
+           android:layout_width="36dp"
+           android:layout_height="36dp"
+           android:layout_marginLeft="-164dp"
+           android:layout_weight="1"
+           app:srcCompat="@mipmap/ic_logo_round" />
+
        <TextView
            android:id="@+id/textTitle"
            android:layout_width="0dp"
@@ -40,7 +48,8 @@
            android:includeFontPadding="false"
            android:text="@string/sign_out"
            android:textColor="@color/colorBackground"
-           android:textSize="@dimen/_13ssp"/>
+           android:textSize="@dimen/_13ssp" />
+
    </LinearLayout>
     
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -81,8 +90,9 @@
         android:layout_marginEnd="@dimen/_25sdp"
         android:layout_marginBottom="@dimen/_25sdp"
         android:contentDescription="@string/app_name"
-        android:src="@drawable/ic_conference"
-        app:tint="@color/vixiMedium"
+        android:background="@drawable/background_user_icon"
+        android:src="@drawable/ic_video"
+        app:tint="@color/colorTextIcons"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

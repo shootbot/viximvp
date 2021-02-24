@@ -24,7 +24,7 @@ public class MessagingService extends FirebaseMessagingService {
 
         String type = remoteMessage.getData().get(REMOTE_MSG_TYPE);
 
-        if (REMOTE_MSG_INVITATION.equals(type)) {
+        if (REMOTE_MSG_INVITATION != null && REMOTE_MSG_INVITATION.equals(type)) {
             Intent intent = new Intent(getApplicationContext(), IncomingInvitationActivity.class);
 
             intent.putExtra(REMOTE_MSG_MEETING_TYPE, remoteMessage.getData().get(REMOTE_MSG_MEETING_TYPE));
@@ -37,10 +37,12 @@ public class MessagingService extends FirebaseMessagingService {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             startActivity(intent);
-        } else if (type.equals(REMOTE_MSG_INVITATION_RESPONSE)) {
+        } else if (REMOTE_MSG_INVITATION_RESPONSE !=null && REMOTE_MSG_INVITATION_RESPONSE.equals(type)) {
             Intent intent = new Intent(REMOTE_MSG_INVITATION_RESPONSE);
             intent.putExtra(REMOTE_MSG_INVITATION_RESPONSE, remoteMessage.getData().get(REMOTE_MSG_INVITATION_RESPONSE));
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }
+
+
 }
