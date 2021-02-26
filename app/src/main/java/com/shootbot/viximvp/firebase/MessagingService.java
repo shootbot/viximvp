@@ -22,6 +22,7 @@ public class MessagingService extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
+
         String type = remoteMessage.getData().get(REMOTE_MSG_TYPE);
 
         if (REMOTE_MSG_INVITATION != null && REMOTE_MSG_INVITATION.equals(type)) {

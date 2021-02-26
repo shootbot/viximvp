@@ -7,51 +7,49 @@
     android:animateLayoutChanges="true"
     tools:context=".activities.MainActivity">
 
-   <LinearLayout
-       android:id="@+id/layoutHeader"
-       android:layout_width="match_parent"
-       android:layout_height="?actionBarSize"
-       android:background="@color/vixiMedium"
-       android:gravity="center_vertical"
-       android:orientation="horizontal"
-       android:paddingStart="@dimen/_8sdp"
-       android:paddingLeft="@dimen/_8sdp"
-       android:paddingEnd="@dimen/_8sdp"
-       app:layout_constraintTop_toTopOf="parent">
+    <LinearLayout
+        android:id="@+id/layoutHeader"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@color/colorBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/_8sdp"
+        android:paddingLeft="@dimen/_8sdp"
+        android:paddingEnd="@dimen/_8sdp"
+        app:layout_constraintTop_toTopOf="parent">
 
-       <ImageView
-           android:id="@+id/imageView"
-           android:layout_width="36dp"
-           android:layout_height="36dp"
-           android:layout_marginLeft="-164dp"
-           android:layout_weight="1"
-           app:srcCompat="@mipmap/ic_logo_round" />
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginLeft="-100dp"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/ic_jitsi_logosvg" />
 
-       <TextView
-           android:id="@+id/textTitle"
-           android:layout_width="0dp"
-           android:layout_height="wrap_content"
-           android:layout_weight="1"
-           android:fontFamily="@font/ubuntu_bold"
-           android:includeFontPadding="false"
-           android:textColor="@color/colorTextIcons"
-           android:textSize="@dimen/_15ssp"
-           android:layout_marginEnd="@dimen/_8sdp"
-           android:layout_marginRight="@dimen/_8sdp" />
+        <TextView
+            android:id="@+id/textTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/_8sdp"
+            android:layout_marginRight="@dimen/_8sdp"
+            android:layout_weight="1"
+            android:fontFamily="@font/ubuntu_bold"
+            android:includeFontPadding="false"
+            android:textColor="@color/vixiDark"
+            android:textSize="@dimen/_15ssp" />
 
-       <TextView
-           android:id="@+id/textSignOut"
-           android:layout_width="wrap_content"
-           android:layout_height="match_parent"
-           android:fontFamily="@font/ubuntu_bold"
-           android:gravity="center"
-           android:includeFontPadding="false"
-           android:text="@string/sign_out"
-           android:textColor="@color/colorBackground"
-           android:textSize="@dimen/_13ssp" />
+        <ImageView
+            android:id="@+id/textSignOut"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="-100dp"
+            android:layout_weight="1"
+            android:textSize="@dimen/_15ssp"
+            app:srcCompat="@drawable/ic_exit" />
 
-   </LinearLayout>
-    
+    </LinearLayout>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
@@ -89,10 +87,7 @@
         android:layout_height="@dimen/_45sdp"
         android:layout_marginEnd="@dimen/_25sdp"
         android:layout_marginBottom="@dimen/_25sdp"
-        android:contentDescription="@string/app_name"
-        android:background="@drawable/background_user_icon"
-        android:src="@drawable/ic_video"
-        app:tint="@color/colorTextIcons"
+        android:src="@drawable/ic_video_call"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

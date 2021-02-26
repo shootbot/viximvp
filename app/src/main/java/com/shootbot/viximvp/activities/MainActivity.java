@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         swipeRefreshLayout.setOnRefreshListener(this::getUsers);
 
         getUsers();
-        //checkForBatteryOptimizations();
+        checkForBatteryOptimizations();
     }
 
     private void getUsers() {
@@ -190,28 +190,28 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         }
     }
 
-//    private void checkForBatteryOptimizations() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-//            if (!powerManager.isIgnoringBatteryOptimizations(getPackageName())) {
-//                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-//                builder.setTitle(R.string.warning);
-//                builder.setMessage(R.string.battery_optimization_enabled);
-//                builder.setPositiveButton(R.string.disable, (dialog, which) -> {
-//                    Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-//                    startActivityForResult(intent, REQUEST_CODE_BATTERY_OPTIMIZATION);
-//                });
-//                builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-//                builder.create().show();
-//            }
-//        }
-//    }
+    private void checkForBatteryOptimizations() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+            if (!powerManager.isIgnoringBatteryOptimizations(getPackageName())) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.warning);
+                builder.setMessage(R.string.battery_optimization_enabled);
+                builder.setPositiveButton(R.string.disable, (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                    startActivityForResult(intent, REQUEST_CODE_BATTERY_OPTIMIZATION);
+                });
+                builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+                builder.create().show();
+            }
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_BATTERY_OPTIMIZATION) {
-            //checkForBatteryOptimizations();
+            checkForBatteryOptimizations();
         }
     }
 }

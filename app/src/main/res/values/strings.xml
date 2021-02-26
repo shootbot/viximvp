@@ -21,9 +21,9 @@
     <string name="incoming_meeting_invitation">Входящее приглашение на встречу</string>
     <string name="sending_meeting_invitation">Отправка приглашения на встречу</string>
 
-    <string name="battery_optimization_enabled">Battery optimization is enabled. It can interrupt running background services.</string>
-    <string name="disable">Disable</string>
-    <string name="warning">Warning</string>
-    <string name="is_not_available"> is not available for meeting</string>
-    <string name="unable_to_sign_out">Unable to sign out</string>
+    <string name="battery_optimization_enabled">Оптимизация батареи включена. Это может прерывать работу push-уведомлений</string>
+    <string name="disable">Отключить</string>
+    <string name="warning">Предупреждение</string>
+    <string name="is_not_available"> не доступен для встречи</string>
+    <string name="unable_to_sign_out">Невозможно выйти</string>
 </resources>
