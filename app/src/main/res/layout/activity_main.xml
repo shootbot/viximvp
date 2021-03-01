@@ -23,7 +23,7 @@
             android:id="@+id/imageView"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_marginLeft="-100dp"
+            android:layout_marginLeft="-50dp"
             android:layout_weight="1"
             app:srcCompat="@drawable/ic_jitsi_logosvg" />
 
@@ -43,7 +43,7 @@
             android:id="@+id/textSignOut"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="-100dp"
+            android:layout_marginRight="-50dp"
             android:layout_weight="1"
             android:textSize="@dimen/_15ssp"
             app:srcCompat="@drawable/ic_exit" />
