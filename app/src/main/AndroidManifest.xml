@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
     <application
@@ -25,6 +27,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.IncomingInvitationActivity"
+            android:showOnLockScreen="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.SignInActivity"
@@ -53,6 +56,10 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <service android:name=".CallNotificationService"
+            android:enabled="true"
+            android:exported="false"/>
         <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
              See README(https://goo.gl/l4GJaQ) for more. -->
         <meta-data
@@ -72,7 +79,10 @@
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
             </intent-filter>
         </receiver>
-
+        <receiver android:name=".CallNotificationReceiver"
+            android:showOnLockScreen="true"
+            android:enabled="true"
+            android:exported="false"/>
     </application>
 
 </manifest>

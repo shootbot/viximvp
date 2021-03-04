@@ -1,175 +1,195 @@
-package com.shootbot.viximvp.activities;
+package com.shootbot.viximvp.activities
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import android.app.Activity
+import android.app.KeyguardManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import com.shootbot.viximvp.R
+import org.json.JSONArray
+import org.json.JSONObject
+import android.widget.Toast
+import com.shootbot.viximvp.network.ApiClient
+import com.shootbot.viximvp.network.ApiService
+import com.shootbot.viximvp.utilities.Ut
+import android.content.Intent
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import android.content.IntentFilter
+import android.os.Build
+import android.view.View
+import android.view.WindowManager
+import android.widget.ImageView
+import android.widget.TextView
+import com.shootbot.viximvp.CallNotificationService
+import com.shootbot.viximvp.utilities.Constants
+import org.json.JSONException
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.net.MalformedURLException
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+class IncomingInvitationActivity : AppCompatActivity() {
+    private var meetingType: String? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_incoming_invitation)
 
-import com.shootbot.viximvp.R;
-import com.shootbot.viximvp.network.ApiClient;
-import com.shootbot.viximvp.network.ApiService;
-import com.shootbot.viximvp.utilities.Ut;
+        turnScreenOnAndKeyguardOff()
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.MalformedURLException;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
-import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
-import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_DATA;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_ACCEPTED;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_CANCELED;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_REJECTED;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_RESPONSE;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITER_TOKEN;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_MEETING_ROOM;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_MEETING_TYPE;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_REGISTRATION_IDS;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_TYPE;
-import static com.shootbot.viximvp.utilities.Constants.getRemoteMessageHeaders;
-
-public class IncomingInvitationActivity extends AppCompatActivity {
-
-    private String meetingType;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_incoming_invitation);
-
-        ImageView imageMeetingType = findViewById(R.id.imageMeetingType);
-        meetingType = getIntent().getStringExtra(REMOTE_MSG_MEETING_TYPE);
-
-        if ("video".equals(meetingType)) {
-            imageMeetingType.setImageResource(R.drawable.ic_video);
+        val imageMeetingType = findViewById<ImageView>(R.id.imageMeetingType)
+        meetingType = intent.getStringExtra(Constants.REMOTE_MSG_MEETING_TYPE)
+        if ("video" == meetingType) {
+            imageMeetingType.setImageResource(R.drawable.ic_video)
         } else {
-            imageMeetingType.setImageResource(R.drawable.ic_audio);
-
+            imageMeetingType.setImageResource(R.drawable.ic_audio)
         }
-
-        TextView textFirstChar = findViewById(R.id.textFirstChar);
-        TextView textUsername = findViewById(R.id.textUsername);
-        TextView textEmail = findViewById(R.id.textEmail);
-
-        String firstName = getIntent().getStringExtra(KEY_FIRST_NAME);
+        val textFirstChar = findViewById<TextView>(R.id.textFirstChar)
+        val textUsername = findViewById<TextView>(R.id.textUsername)
+        val textEmail = findViewById<TextView>(R.id.textEmail)
+        val firstName = intent.getStringExtra(Constants.KEY_FIRST_NAME)
         if (firstName != null) {
-            textFirstChar.setText(firstName.substring(0, 1));
+            textFirstChar.text = firstName.substring(0, 1)
         }
-
-        textUsername.setText(String.format(
+        textUsername.text = String.format(
                 "%s %s",
                 firstName,
-                getIntent().getStringExtra(KEY_LAST_NAME)
-        ));
-
-        textEmail.setText(getIntent().getStringExtra(KEY_EMAIL));
-
-        ImageView imageAcceptInvitation = findViewById(R.id.imageAcceptInvitation);
-        imageAcceptInvitation.setOnClickListener(v -> sendInvitationResponse(
-                REMOTE_MSG_INVITATION_ACCEPTED,
-                getIntent().getStringExtra(REMOTE_MSG_INVITER_TOKEN)));
-
-        ImageView imageRejectInvitation = findViewById(R.id.imageRejectInvitation);
-        imageRejectInvitation.setOnClickListener(v -> sendInvitationResponse(
-                REMOTE_MSG_INVITATION_REJECTED,
-                getIntent().getStringExtra(REMOTE_MSG_INVITER_TOKEN)));
-    }
-
-    private void sendInvitationResponse(String type, String receiverToken) {
-        try {
-            JSONArray tokens = new JSONArray();
-            tokens.put(receiverToken);
-
-            JSONObject body = new JSONObject();
-            JSONObject data = new JSONObject();
-
-            data.put(REMOTE_MSG_TYPE, REMOTE_MSG_INVITATION_RESPONSE);
-            data.put(REMOTE_MSG_INVITATION_RESPONSE, type);
-
-            body.put(REMOTE_MSG_DATA, data);
-            body.put(REMOTE_MSG_REGISTRATION_IDS, tokens);
-
-            sendRemoteMessage(body.toString(), type);
-        } catch (JSONException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            finish();
+                intent.getStringExtra(Constants.KEY_LAST_NAME)
+        )
+        textEmail.text = intent.getStringExtra(Constants.KEY_EMAIL)
+        val imageAcceptInvitation = findViewById<ImageView>(R.id.imageAcceptInvitation)
+        imageAcceptInvitation.setOnClickListener { v: View? ->
+            sendInvitationResponse(
+                    Constants.REMOTE_MSG_INVITATION_ACCEPTED,
+                    intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
+        }
+        val imageRejectInvitation = findViewById<ImageView>(R.id.imageRejectInvitation)
+        imageRejectInvitation.setOnClickListener { v: View? ->
+            sendInvitationResponse(
+                    Constants.REMOTE_MSG_INVITATION_REJECTED,
+                    intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
         }
     }
 
-    private void sendRemoteMessage(String remoteMessageBody, String type) {
-        ApiClient.getClient().create(ApiService.class).sendRemoteMessage(
-                getRemoteMessageHeaders(),
+    private fun sendInvitationResponse(type: String, receiverToken: String?) {
+        try {
+            val tokens = JSONArray()
+            tokens.put(receiverToken)
+            val body = JSONObject()
+            val data = JSONObject()
+            data.put(Constants.REMOTE_MSG_TYPE, Constants.REMOTE_MSG_INVITATION_RESPONSE)
+            data.put(Constants.REMOTE_MSG_INVITATION_RESPONSE, type)
+            body.put(Constants.REMOTE_MSG_DATA, data)
+            body.put(Constants.REMOTE_MSG_REGISTRATION_IDS, tokens)
+            sendRemoteMessage(body.toString(), type)
+        } catch (e: JSONException) {
+            Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+            finish()
+        }
+    }
+
+    private fun cleanNotification(){
+        val closeIntent = Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+        with(this) {
+            sendBroadcast(closeIntent)
+            stopService(Intent(this, CallNotificationService::class.java))
+        }
+    }
+
+    private fun sendRemoteMessage(remoteMessageBody: String, type: String) {
+        ApiClient.getClient().create(ApiService::class.java).sendRemoteMessage(
+                Constants.getRemoteMessageHeaders(),
                 remoteMessageBody)
-                .enqueue(new Callback<String>() {
-                    @Override
-                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        if (response.isSuccessful()) {
-                            if (type.equals(REMOTE_MSG_INVITATION_ACCEPTED)) {
+                .enqueue(object : Callback<String?> {
+                    override fun onResponse(call: Call<String?>, response: Response<String?>) {
+                        if (response.isSuccessful) {
+                            if (type == Constants.REMOTE_MSG_INVITATION_ACCEPTED) {
                                 try {
                                     Ut.launchConference(
-                                            IncomingInvitationActivity.this,
-                                            getIntent().getStringExtra(REMOTE_MSG_MEETING_ROOM),
-                                            meetingType);
-                                    finish();
-                                } catch (MalformedURLException e) {
-                                    Toast.makeText(IncomingInvitationActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    finish();
+                                            this@IncomingInvitationActivity,
+                                            intent.getStringExtra(Constants.REMOTE_MSG_MEETING_ROOM),
+                                            meetingType)
+                                    cleanNotification()
+                                    finish()
+                                } catch (e: MalformedURLException) {
+                                    Toast.makeText(this@IncomingInvitationActivity, e.message, Toast.LENGTH_SHORT).show()
+                                    cleanNotification()
+                                    finish()
                                 }
                             } else {
                                 // Toast.makeText(IncomingInvitationActivity.this, "Invitation rejected", Toast.LENGTH_SHORT).show();
-                                finish();
+                                    cleanNotification()
+                                finish()
                             }
                         } else {
-                            Toast.makeText(IncomingInvitationActivity.this, response.message(), Toast.LENGTH_SHORT).show();
-                            finish();
+                            Toast.makeText(this@IncomingInvitationActivity, response.message(), Toast.LENGTH_SHORT).show()
+                            cleanNotification()
+                            finish()
                         }
                     }
 
-                    @Override
-                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                        Toast.makeText(IncomingInvitationActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    override fun onFailure(call: Call<String?>, t: Throwable) {
+                        Toast.makeText(this@IncomingInvitationActivity, t.message, Toast.LENGTH_SHORT).show()
                     }
-                });
+                })
     }
 
-    private BroadcastReceiver invitationResponseReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String type = intent.getStringExtra(REMOTE_MSG_INVITATION_RESPONSE);
-            if (REMOTE_MSG_INVITATION_CANCELED.equals(type)) {
+    private val invitationResponseReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val type = intent.getStringExtra(Constants.REMOTE_MSG_INVITATION_RESPONSE)
+            if (Constants.REMOTE_MSG_INVITATION_CANCELED == type) {
                 // Toast.makeText(context, "Invitation canceled", Toast.LENGTH_SHORT).show();
-                finish();
+                finish()
             }
         }
-    };
+    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(
+    override fun onStart() {
+        super.onStart()
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(
                 invitationResponseReceiver,
-                new IntentFilter(REMOTE_MSG_INVITATION_RESPONSE)
-        );
+                IntentFilter(Constants.REMOTE_MSG_INVITATION_RESPONSE)
+        )
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(invitationResponseReceiver);
+    override fun onStop() {
+        super.onStop()
+        LocalBroadcastManager.getInstance(applicationContext).unregisterReceiver(invitationResponseReceiver)
     }
+
+    override fun onDestroy() {
+        turnScreenOffAndKeyguardOn()
+        super.onDestroy()
+    }
+
+    private fun turnScreenOnAndKeyguardOff() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        } else {
+            window.addFlags(
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                            or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+            )
+        }
+
+        with(getSystemService(KEYGUARD_SERVICE) as KeyguardManager) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requestDismissKeyguard(this@IncomingInvitationActivity, null)
+            }
+        }
+    }
+
+    private fun turnScreenOffAndKeyguardOn() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(false)
+            setTurnScreenOn(false)
+        } else {
+            window.clearFlags(
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                            or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+            )
+        }
+    }
+
 }

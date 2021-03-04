@@ -1,49 +1,48 @@
-package com.shootbot.viximvp.firebase;
+package com.shootbot.viximvp.firebase
 
-import android.content.Intent;
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import com.google.firebase.messaging.FirebaseMessagingService
+import com.google.firebase.messaging.RemoteMessage
+import android.content.Intent
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import com.shootbot.viximvp.activities.IncomingInvitationActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.shootbot.viximvp.CallNotificationService
+import com.shootbot.viximvp.utilities.Constants
 
-import androidx.annotation.NonNull;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
-import com.shootbot.viximvp.activities.IncomingInvitationActivity;
-
-import static com.shootbot.viximvp.utilities.Constants.*;
-
-public class MessagingService extends FirebaseMessagingService {
-
-    @Override
-    public void onNewToken(@NonNull String token) {
-        super.onNewToken(token);
+class MessagingService : FirebaseMessagingService() {
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
     }
 
-    @Override
-    public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
-        super.onMessageReceived(remoteMessage);
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        super.onMessageReceived(remoteMessage)
+        val type = remoteMessage.data[Constants.REMOTE_MSG_TYPE]
+        if (Constants.REMOTE_MSG_INVITATION != null && Constants.REMOTE_MSG_INVITATION == type) {
+            val intent = Intent(applicationContext, CallNotificationService::class.java)
+            intent.putExtra(Constants.REMOTE_MSG_MEETING_TYPE, remoteMessage.data[Constants.REMOTE_MSG_MEETING_TYPE])
+            intent.putExtra(Constants.KEY_FIRST_NAME, remoteMessage.data[Constants.KEY_FIRST_NAME])
+            intent.putExtra(Constants.KEY_LAST_NAME, remoteMessage.data[Constants.KEY_LAST_NAME])
+            intent.putExtra(Constants.KEY_EMAIL, remoteMessage.data[Constants.KEY_EMAIL])
+            intent.putExtra(Constants.REMOTE_MSG_INVITER_TOKEN, remoteMessage.data[Constants.REMOTE_MSG_INVITER_TOKEN])
+            intent.putExtra(Constants.REMOTE_MSG_MEETING_ROOM, remoteMessage.data[Constants.REMOTE_MSG_MEETING_ROOM])
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
+            startService(intent)
+//            startActivity(intent)
+        } else if (Constants.REMOTE_MSG_INVITATION_RESPONSE != null && Constants.REMOTE_MSG_INVITATION_RESPONSE == type) {
+            val intent = Intent(Constants.REMOTE_MSG_INVITATION_RESPONSE)
+            intent.putExtra(Constants.REMOTE_MSG_INVITATION_RESPONSE, remoteMessage.data[Constants.REMOTE_MSG_INVITATION_RESPONSE])
+            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
 
-        String type = remoteMessage.getData().get(REMOTE_MSG_TYPE);
-
-        if (REMOTE_MSG_INVITATION != null && REMOTE_MSG_INVITATION.equals(type)) {
-            Intent intent = new Intent(getApplicationContext(), IncomingInvitationActivity.class);
-
-            intent.putExtra(REMOTE_MSG_MEETING_TYPE, remoteMessage.getData().get(REMOTE_MSG_MEETING_TYPE));
-            intent.putExtra(KEY_FIRST_NAME, remoteMessage.getData().get(KEY_FIRST_NAME));
-            intent.putExtra(KEY_LAST_NAME, remoteMessage.getData().get(KEY_LAST_NAME));
-            intent.putExtra(KEY_EMAIL, remoteMessage.getData().get(KEY_EMAIL));
-            intent.putExtra(REMOTE_MSG_INVITER_TOKEN, remoteMessage.getData().get(REMOTE_MSG_INVITER_TOKEN));
-            intent.putExtra(REMOTE_MSG_MEETING_ROOM, remoteMessage.getData().get(REMOTE_MSG_MEETING_ROOM));
-
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            startActivity(intent);
-        } else if (REMOTE_MSG_INVITATION_RESPONSE !=null && REMOTE_MSG_INVITATION_RESPONSE.equals(type)) {
-            Intent intent = new Intent(REMOTE_MSG_INVITATION_RESPONSE);
-            intent.putExtra(REMOTE_MSG_INVITATION_RESPONSE, remoteMessage.getData().get(REMOTE_MSG_INVITATION_RESPONSE));
-            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            stopService(Intent(applicationContext, CallNotificationService::class.java))
+            val it = Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+            sendBroadcast(it)
         }
     }
-
 
 }
