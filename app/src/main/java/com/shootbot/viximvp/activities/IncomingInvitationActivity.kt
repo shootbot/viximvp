@@ -37,6 +37,30 @@ class IncomingInvitationActivity : AppCompatActivity() {
 
         turnScreenOnAndKeyguardOff()
 
+        val imageAcceptInvitation = findViewById<ImageView>(R.id.imageAcceptInvitation)
+        imageAcceptInvitation.setOnClickListener {
+            sendInvitationResponse(
+                    Constants.REMOTE_MSG_INVITATION_ACCEPTED,
+                    intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
+        }
+        val imageRejectInvitation = findViewById<ImageView>(R.id.imageRejectInvitation)
+        imageRejectInvitation.setOnClickListener {
+            sendInvitationResponse(
+                    Constants.REMOTE_MSG_INVITATION_REJECTED,
+                    intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
+        }
+
+        val isCallAccepted = intent.getBooleanExtra(Constants.IS_CALL_ACCEPTED, false)
+
+        if (isCallAccepted) {
+            imageAcceptInvitation.visibility = View.GONE
+            imageRejectInvitation.visibility = View.GONE
+            sendInvitationResponse(
+                    Constants.REMOTE_MSG_INVITATION_ACCEPTED,
+                    intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
+
+        }
+
         val imageMeetingType = findViewById<ImageView>(R.id.imageMeetingType)
         meetingType = intent.getStringExtra(Constants.REMOTE_MSG_MEETING_TYPE)
         if ("video" == meetingType) {
@@ -57,18 +81,7 @@ class IncomingInvitationActivity : AppCompatActivity() {
                 intent.getStringExtra(Constants.KEY_LAST_NAME)
         )
         textEmail.text = intent.getStringExtra(Constants.KEY_EMAIL)
-        val imageAcceptInvitation = findViewById<ImageView>(R.id.imageAcceptInvitation)
-        imageAcceptInvitation.setOnClickListener { v: View? ->
-            sendInvitationResponse(
-                    Constants.REMOTE_MSG_INVITATION_ACCEPTED,
-                    intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
-        }
-        val imageRejectInvitation = findViewById<ImageView>(R.id.imageRejectInvitation)
-        imageRejectInvitation.setOnClickListener { v: View? ->
-            sendInvitationResponse(
-                    Constants.REMOTE_MSG_INVITATION_REJECTED,
-                    intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
-        }
+
     }
 
     private fun sendInvitationResponse(type: String, receiverToken: String?) {
@@ -88,7 +101,7 @@ class IncomingInvitationActivity : AppCompatActivity() {
         }
     }
 
-    private fun cleanNotification(){
+    private fun cleanNotification() {
         val closeIntent = Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
         with(this) {
             sendBroadcast(closeIntent)
@@ -118,7 +131,7 @@ class IncomingInvitationActivity : AppCompatActivity() {
                                 }
                             } else {
                                 // Toast.makeText(IncomingInvitationActivity.this, "Invitation rejected", Toast.LENGTH_SHORT).show();
-                                    cleanNotification()
+                                cleanNotification()
                                 finish()
                             }
                         } else {

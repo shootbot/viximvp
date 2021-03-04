@@ -23,13 +23,16 @@ class CallNotificationReceiver : BroadcastReceiver() {
         intent?.action?.let { action ->
             when (action) {
                 "RECEIVE_CALL" -> {
-                    sendInvitationResponse(
-                            context,
-                            Constants.REMOTE_MSG_INVITATION_ACCEPTED,
-                            intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN),
-                            intent.getStringExtra(Constants.REMOTE_MSG_MEETING_TYPE),
-                            intent.getStringExtra(Constants.REMOTE_MSG_MEETING_ROOM)
-                    )
+                    val callActivity = Intent(context, IncomingInvitationActivity::class.java)
+                    callActivity.putExtra(Constants.REMOTE_MSG_MEETING_TYPE, intent.getStringExtra(Constants.REMOTE_MSG_MEETING_TYPE))
+                    callActivity.putExtra(Constants.KEY_FIRST_NAME, intent.getStringExtra(Constants.KEY_FIRST_NAME))
+                    callActivity.putExtra(Constants.KEY_LAST_NAME, intent.getStringExtra(Constants.KEY_LAST_NAME))
+                    callActivity.putExtra(Constants.KEY_EMAIL, intent.getStringExtra(Constants.KEY_EMAIL))
+                    callActivity.putExtra(Constants.REMOTE_MSG_INVITER_TOKEN, intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
+                    callActivity.putExtra(Constants.REMOTE_MSG_MEETING_ROOM, intent.getStringExtra(Constants.REMOTE_MSG_MEETING_ROOM))
+                    callActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    callActivity.putExtra(Constants.IS_CALL_ACCEPTED, true)
+                    context?.startActivity(callActivity)
                 }
                 "CANCEL_CALL" -> {
                     sendInvitationResponse(
