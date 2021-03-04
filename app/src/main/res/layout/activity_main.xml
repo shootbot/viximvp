@@ -17,14 +17,14 @@
         android:paddingStart="@dimen/_8sdp"
         android:paddingLeft="@dimen/_8sdp"
         android:paddingEnd="@dimen/_8sdp"
+        android:weightSum="100"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_marginLeft="-50dp"
-            android:layout_weight="1"
+            android:layout_weight="10"
             app:srcCompat="@drawable/ic_jitsi_logosvg" />
 
         <TextView
@@ -33,8 +33,10 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/_8sdp"
             android:layout_marginRight="@dimen/_8sdp"
-            android:layout_weight="1"
+            android:layout_weight="80"
+            android:textAlignment="center"
             android:fontFamily="@font/ubuntu_bold"
+            tools:text="TEST"
             android:includeFontPadding="false"
             android:textColor="@color/vixiDark"
             android:textSize="@dimen/_15ssp" />
@@ -43,8 +45,7 @@
             android:id="@+id/textSignOut"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="-50dp"
-            android:layout_weight="1"
+            android:layout_weight="10"
             android:textSize="@dimen/_15ssp"
             app:srcCompat="@drawable/ic_exit" />
 
@@ -62,6 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
+            tools:listitem="@layout/item_container_user"
             android:padding="@dimen/_5sdp"
             android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
