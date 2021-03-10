@@ -22,6 +22,8 @@ class MessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
         val type = remoteMessage.data[Constants.REMOTE_MSG_TYPE]
+
+
         if (Constants.REMOTE_MSG_INVITATION != null && Constants.REMOTE_MSG_INVITATION == type) {
             val intent = Intent(applicationContext, CallNotificationService::class.java)
             intent.putExtra(Constants.REMOTE_MSG_MEETING_TYPE, remoteMessage.data[Constants.REMOTE_MSG_MEETING_TYPE])

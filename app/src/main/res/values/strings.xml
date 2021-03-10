@@ -2,15 +2,15 @@
     <string name="app_name">VIXI caller</string>
     <string name="welcome_to">Добро пожаловать</string>
     <string name="video_meeting_conference_app">VIXI caller</string>
-    <string name="sign_in_to_your_account">Войдите в свой аккаунт</string>
+    <string name="sign_in_to_your_account">Вход в систему</string>
     <string name="email">Email</string>
     <string name="you_example_com">you@example.com</string>
     <string name="password">Пароль</string>
     <string name="password_hint">• • • • • •</string>
-    <string name="sign_in">Вход</string>
-    <string name="don_t_have_an_account">У вас нету аккаунта?</string>
+    <string name="sign_in">Войти</string>
+    <string name="don_t_have_an_account">У вас нет аккаунта?</string>
     <string name="sign_up">Зарегистрироваться</string>
-    <string name="we_need_a_few_details_to_make_your_account_ready">Нам нужно несколько деталей, чтобы создать вашу учетную запись</string>
+    <string name="we_need_a_few_details_to_make_your_account_ready">Создайте аккаунт VIXI Caller</string>
     <string name="first_name">Имя</string>
     <string name="john">Иван</string>
     <string name="last_name">Фамилия</string>
@@ -21,7 +21,7 @@
     <string name="incoming_meeting_invitation">Входящее приглашение на встречу</string>
     <string name="sending_meeting_invitation">Отправка приглашения на встречу</string>
 
-    <string name="battery_optimization_enabled">Оптимизация батареи включена. Это может прерывать работу push-уведомлений</string>
+    <string name="battery_optimization_enabled">Оптимизация батареи включена. Это может прерывать работу push-уведомления, если приложение не открыто</string>
     <string name="disable">Отключить</string>
     <string name="warning">Предупреждение</string>
     <string name="is_not_available"> не доступен для встречи</string>

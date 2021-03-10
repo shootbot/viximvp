@@ -22,16 +22,27 @@ import com.shootbot.viximvp.utilities.PreferenceManager;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.shootbot.viximvp.utilities.Constants.*;
 
 public class SignUpActivity extends AppCompatActivity {
+
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^" +
+                    "(?=.*[0-9])" +  // как минимум 1 цифра
+                    // "(?=.*[A-Z])" +  // минимум одна большая буква
+                    "(?=.*[a-zA-Z])" +  // любая буква
+                    "(?=\\\\S+$)" +  // no white spaces
+                    ".{6,}" + // как минимум 6 символов
+                    "$");
 
     private EditText inputFirstName, inputLastName, inputEmail, inputPassword, inputConfirmPassword;
     private MaterialButton buttonSignUp;
     private ProgressBar signUpProgressBar;
     private PreferenceManager preferenceManager;
 
+    boolean isAllFieldsChecked = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,21 +63,27 @@ public class SignUpActivity extends AppCompatActivity {
         signUpProgressBar = findViewById(R.id.signUpProgressBar);
 
         buttonSignUp.setOnClickListener(v -> {
-            if (inputFirstName.getText().toString().trim().isEmpty()) {
-                Toast.makeText(SignUpActivity.this, "Enter first name", Toast.LENGTH_SHORT).show();
-            } else if (inputLastName.getText().toString().trim().isEmpty()) {
-                Toast.makeText(SignUpActivity.this, "Enter last name", Toast.LENGTH_SHORT).show();
-            } else if (inputEmail.getText().toString().trim().isEmpty()) {
-                Toast.makeText(SignUpActivity.this, "Enter email", Toast.LENGTH_SHORT).show();
-            } else if (!Patterns.EMAIL_ADDRESS.matcher(inputEmail.getText().toString()).matches()) {
-                Toast.makeText(SignUpActivity.this, "Enter valid email", Toast.LENGTH_SHORT).show();
-            } else if (inputPassword.getText().toString().trim().isEmpty()) {
-                Toast.makeText(SignUpActivity.this, "Enter password", Toast.LENGTH_SHORT).show();
-            } else if (!inputPassword.getText().toString().trim().equals(inputConfirmPassword.getText().toString().trim())) {
-                Toast.makeText(SignUpActivity.this, "Password & confirm password must be same", Toast.LENGTH_SHORT).show();
-            } else {
+
+            if(CheckAllFields()) {
                 signUp();
             }
+            isAllFieldsChecked = CheckAllFields();
+
+//            if (inputFirstName.getText().toString().trim().isEmpty()) {
+//                Toast.makeText(SignUpActivity.this, "Введите имя", Toast.LENGTH_SHORT).show();
+//            } else if (inputLastName.getText().toString().trim().isEmpty()) {
+//                Toast.makeText(SignUpActivity.this, "Введите фамилию", Toast.LENGTH_SHORT).show();
+//            } else if (inputEmail.getText().toString().trim().isEmpty()) {
+//                Toast.makeText(SignUpActivity.this, "Введите адрес электронной почты.", Toast.LENGTH_SHORT).show();
+//            } else if (!Patterns.EMAIL_ADDRESS.matcher(inputEmail.getText().toString()).matches()) {
+//                Toast.makeText(SignUpActivity.this, "Не валидный адрес электронной почты.", Toast.LENGTH_SHORT).show();
+//            } else if (!PASSWORD_PATTERN.matcher(inputPassword.getText().toString()).matches()) {
+//                Toast.makeText(SignUpActivity.this, "Длина пароля должна быть от 6 до 12 символов.", Toast.LENGTH_SHORT).show();
+//            } else if (!inputPassword.getText().toString().trim().equals(inputConfirmPassword.getText().toString().trim())) {
+//                Toast.makeText(SignUpActivity.this, "Пароли не совпадают.", Toast.LENGTH_SHORT).show();
+//            } else {
+//                signUp();
+//            }
         });
     }
 
@@ -98,5 +115,39 @@ public class SignUpActivity extends AppCompatActivity {
                     buttonSignUp.setVisibility(View.VISIBLE);
                     Toast.makeText(SignUpActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+    private boolean CheckAllFields() {
+        if (inputFirstName.length() == 0) {
+            inputFirstName.setError("Введите имя");
+            return false;
+        }
+
+        if (inputLastName.length() == 0) {
+            inputLastName.setError("Введите фамилию");
+            return false;
+        }
+
+        if (inputEmail.length() == 0) {
+            inputEmail.setError("Введите адрес электронной почты.");
+            return false;
+        } else if(!Patterns.EMAIL_ADDRESS.matcher(inputEmail.getText().toString()).matches()) {
+            inputEmail.setError("Невалидный адрес электронной почты.");
+            return false;
+        }
+
+        if (inputPassword.length() == 0) {
+            inputPassword.setError("Введите пароль");
+            return false;
+        } else if (inputPassword.length() < 6) {
+            inputPassword.setError("Длина пароля должна быть от 6 до 12 символов.");
+            return false;
+        }
+        if (!inputPassword.getText().toString().trim().equals(inputConfirmPassword.getText().toString().trim())) {
+            inputConfirmPassword.setError("Пароли не совпадают.");
+            return false;
+        }
+
+        // after all validation return true.
+        return true;
     }
 }
