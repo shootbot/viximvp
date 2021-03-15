@@ -21,12 +21,14 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.iid.FcmBroadcastProcessor;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.adapters.UsersAdapter;
 import com.shootbot.viximvp.listeners.UsersListener;
@@ -42,8 +44,15 @@ import static com.shootbot.viximvp.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FCM_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
+import static com.shootbot.viximvp.utilities.Constants.KEY_IS_SIGNED_IN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
+import static com.shootbot.viximvp.utilities.Constants.KEY_PASSWORD;
 import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
+
+// import com.google.firebase.firestore.DocumentReference;
+// import com.google.firebase.firestore.FieldValue;
+// import com.google.firebase.firestore.FirebaseFirestore;
+// import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class MainActivity extends AppCompatActivity implements UsersListener {
     private PreferenceManager preferenceManager;
@@ -74,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         findViewById(R.id.textSignOut).setOnClickListener(v -> signOut());
 
         FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
-            Log.d("FCM", "MainActivity task complete, succes: " + task.isSuccessful());
+            Log.d("FCM", "MainActivity task complete, success: " + task.isSuccessful());
             if (task.isSuccessful() && task.getResult() != null) {
                 sendFcmTokenToDatabase(task.getResult().getToken());
             }
@@ -93,8 +102,8 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         getUsers();
         checkForBatteryOptimizations();
 
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
         }
 
 
@@ -103,69 +112,149 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
     private void getUsers() {
         textErrorMessage.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setRefreshing(true);
-        FirebaseFirestore database = FirebaseFirestore.getInstance();
-        database.collection(KEY_COLLECTION_USERS).get()
-                .addOnCompleteListener(task -> {
-                    swipeRefreshLayout.setRefreshing(false);
-                    String myUserId = preferenceManager.getString(KEY_USER_ID);
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        users.clear();
-                        for (QueryDocumentSnapshot snapshot : task.getResult()) {
-                            if (myUserId.equals(snapshot.getId())) continue;
-                            User user = new User();
-                            user.firstName = snapshot.getString(KEY_FIRST_NAME);
-                            user.lastName = snapshot.getString(KEY_LAST_NAME);
-                            user.email = snapshot.getString(KEY_EMAIL);
-                            user.token = snapshot.getString(KEY_FCM_TOKEN);
-                            if (user.token != null) {
-                                users.add(user);
-                            }
-                        }
-                        usersAdapter.notifyDataSetChanged();
-                        // if (users.isEmpty()) {
-                        //     textErrorMessage.setText(String.format("%s", "No users available"));
-                        //     textErrorMessage.setVisibility(View.VISIBLE);
-                        // }
-                    } else {
-                        Toast.makeText(this, "Error: can't update user list", Toast.LENGTH_SHORT).show();
-                        // textErrorMessage.setText(String.format("%s", "No users available"));
-                        // textErrorMessage.setVisibility(View.VISIBLE);
+
+        /////////////////////////
+        // FirebaseFirestore database = FirebaseFirestore.getInstance();
+        // database.collection(KEY_COLLECTION_USERS).get()
+        //         .addOnCompleteListener(task -> {
+        //             swipeRefreshLayout.setRefreshing(false);
+        //             String myUserId = preferenceManager.getString(KEY_USER_ID);
+        //             if (task.isSuccessful() && task.getResult() != null) {
+        //                 users.clear();
+        //                 for (QueryDocumentSnapshot snapshot : task.getResult()) {
+        //                     if (myUserId.equals(snapshot.getId())) continue;
+        //                     User user = new User();
+        //                     user.firstName = snapshot.getString(KEY_FIRST_NAME);
+        //                     user.lastName = snapshot.getString(KEY_LAST_NAME);
+        //                     user.email = snapshot.getString(KEY_EMAIL);
+        //                     user.token = snapshot.getString(KEY_FCM_TOKEN);
+        //                     if (user.token != null) {
+        //                         users.add(user);
+        //                     }
+        //                 }
+        //                 usersAdapter.notifyDataSetChanged();
+        //                 // if (users.isEmpty()) {
+        //                 //     textErrorMessage.setText(String.format("%s", "No users available"));
+        //                 //     textErrorMessage.setVisibility(View.VISIBLE);
+        //                 // }
+        //             } else {
+        //                 Toast.makeText(this, "Error: can't update user list", Toast.LENGTH_SHORT).show();
+        //                 // textErrorMessage.setText(String.format("%s", "No users available"));
+        //                 // textErrorMessage.setVisibility(View.VISIBLE);
+        //             }
+        //         });
+        /////////////////////////
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
+        query.findInBackground((objects, e) -> {
+            swipeRefreshLayout.setRefreshing(false);
+            String myUserId = preferenceManager.getString(KEY_USER_ID);
+            if (e == null) {
+                Log.d("parse", "load users ok: " + objects.size());
+                users.clear();
+                for (ParseObject userObject : objects) {
+                    if (myUserId.equals(userObject.getObjectId())) continue;
+                    User user = new User();
+                    user.firstName = userObject.getString(KEY_FIRST_NAME);
+                    user.lastName = userObject.getString(KEY_LAST_NAME);
+                    user.email = userObject.getString(KEY_EMAIL);
+                    user.token = userObject.getString(KEY_FCM_TOKEN);
+                    if (user.token != null) {
+                        users.add(user);
                     }
-                });
+                }
+                usersAdapter.notifyDataSetChanged();
+            } else {
+                Log.d("parse", "load users error: " + e.getMessage());
+                Toast.makeText(MainActivity.this, "Error: can't update user list", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void sendFcmTokenToDatabase(String token) {
-        FirebaseFirestore database = FirebaseFirestore.getInstance();
-        DocumentReference documentReference = database
-                .collection(KEY_COLLECTION_USERS)
-                .document(preferenceManager.getString(KEY_USER_ID));
-        documentReference
-                .update(KEY_FCM_TOKEN, token)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("FCM", "Token updated successfully");
-                    // Toast.makeText(MainActivity.this, "Token updated successfully", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Log.d("FCM", "Unable to send token: " + e.getMessage());
-                    Toast.makeText(MainActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+        // FirebaseFirestore database = FirebaseFirestore.getInstance();
+        // DocumentReference documentReference = database
+        //         .collection(KEY_COLLECTION_USERS)
+        //         .document(preferenceManager.getString(KEY_USER_ID));
+        // documentReference
+        //         .update(KEY_FCM_TOKEN, token)
+        //         .addOnSuccessListener(aVoid -> {
+        //             Log.d("FCM", "Token updated successfully");
+        //             // Toast.makeText(MainActivity.this, "Token updated successfully", Toast.LENGTH_SHORT).show();
+        //         })
+        //         .addOnFailureListener(e -> {
+        //             Log.d("FCM", "Unable to send token: " + e.getMessage());
+        //             Toast.makeText(MainActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        //         });
+        ///////////////////////
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
+        query.whereEqualTo("objectId", preferenceManager.getString(KEY_USER_ID));
+        query.findInBackground((objects, e) -> {
+            if (e == null) {
+                Log.d("parse", "search user ok: " + objects.size());
+                for (ParseObject userObject: objects) {
+                    userObject.put(KEY_FCM_TOKEN, token);
+                    userObject.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                Log.d("parse", "token save ok");
+                            } else {
+                                Log.d("parse", "token save error: " + e.getMessage());
+                                Toast.makeText(MainActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+            } else {
+                Log.d("parse", "search user error: " + e.getMessage());
+                Toast.makeText(MainActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void signOut() {
         // Toast.makeText(this, "Signing out...", Toast.LENGTH_SHORT).show();
-        FirebaseFirestore database = FirebaseFirestore.getInstance();
-        DocumentReference documentReference = database
-                .collection(KEY_COLLECTION_USERS)
-                .document(preferenceManager.getString(KEY_USER_ID));
-        Map<String, Object> updates = new HashMap<>();
-        updates.put(KEY_FCM_TOKEN, FieldValue.delete());
-        documentReference.update(updates)
-                .addOnSuccessListener(aVoid -> {
-                    preferenceManager.clearPreferences();
-                    startActivity(new Intent(getApplicationContext(), SignInActivity.class));
-                    finish();
-                })
-                .addOnFailureListener(e -> Toast.makeText(MainActivity.this, R.string.unable_to_sign_out, Toast.LENGTH_SHORT).show());
+        // FirebaseFirestore database = FirebaseFirestore.getInstance();
+        // DocumentReference documentReference = database
+        //         .collection(KEY_COLLECTION_USERS)
+        //         .document(preferenceManager.getString(KEY_USER_ID));
+        // Map<String, Object> updates = new HashMap<>();
+        // updates.put(KEY_FCM_TOKEN, FieldValue.delete());
+        // documentReference.update(updates)
+        //         .addOnSuccessListener(aVoid -> {
+        //             preferenceManager.clearPreferences();
+        //             startActivity(new Intent(getApplicationContext(), SignInActivity.class));
+        //             finish();
+        //         })
+        //         .addOnFailureListener(e -> Toast.makeText(MainActivity.this, R.string.unable_to_sign_out, Toast.LENGTH_SHORT).show());
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
+        query.whereEqualTo("objectId", preferenceManager.getString(KEY_USER_ID));
+        query.findInBackground((objects, e) -> {
+            if (e == null) {
+                Log.d("parse", "search user ok: " + objects.size());
+                for (ParseObject userObject: objects) {
+                    userObject.remove(KEY_FCM_TOKEN);
+                    userObject.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                Log.d("parse", "token delete ok");
+                                preferenceManager.clearPreferences();
+                                            startActivity(new Intent(getApplicationContext(), SignInActivity.class));
+                                            finish();
+                            } else {
+                                Log.d("parse", "token delete error: " + e.getMessage());
+                                Toast.makeText(MainActivity.this, R.string.unable_to_sign_out, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+            } else {
+                Log.d("parse", "search user error: " + e.getMessage());
+                Toast.makeText(MainActivity.this, R.string.unable_to_sign_out, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

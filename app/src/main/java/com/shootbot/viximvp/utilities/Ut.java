@@ -14,7 +14,7 @@ public class Ut {
         // постоянно будет читать файл, нужно исправить
         PropertyReader pr = new PropertyReader(context, "app.properties");
 
-        URL serverUrl = new URL("https://" + pr.getProperty("conference_server")); // "https://gov.vixi.kz
+        URL serverUrl = new URL("https://" + pr.getProperty("conference_server"));
         JitsiMeetConferenceOptions.Builder builder = new JitsiMeetConferenceOptions.Builder();
         builder.setServerURL(serverUrl);
         builder.setWelcomePageEnabled(false);

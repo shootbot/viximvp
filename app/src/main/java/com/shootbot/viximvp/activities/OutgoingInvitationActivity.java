@@ -14,9 +14,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.google.common.reflect.TypeToken;
+// import com.google.common.reflect.TypeToken;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.models.User;
 import com.shootbot.viximvp.network.ApiClient;
