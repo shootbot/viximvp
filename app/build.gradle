@@ -49,7 +49,7 @@ dependencies {
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
     implementation 'com.intuit.ssp:ssp-android:1.0.6'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.multidex:multidex:2.0.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
@@ -67,7 +67,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.firebase:firebase-analytics'
     // firebase
-    implementation 'com.google.firebase:firebase-messaging:21.0.1'
+//    implementation 'com.google.firebase:firebase-messaging:21.0.1'
 //    implementation 'com.google.firebase:firebase-firestore:22.1.0'
     implementation "com.github.parse-community.Parse-SDK-Android:parse:1.26.0"
+    implementation 'me.pushy:sdk:1.0.67'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
 }

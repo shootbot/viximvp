@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 // import com.google.common.reflect.TypeToken;
-import com.google.firebase.iid.FirebaseInstanceId;
+// import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.shootbot.viximvp.R;
@@ -35,11 +36,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import me.pushy.sdk.Pushy;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
+import static com.shootbot.viximvp.utilities.Constants.KEY_FCM_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
@@ -112,27 +115,43 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             }
         });
 
-        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                inviterToken = task.getResult().getToken();
-                if (meetingType != null) {
-                    if (getIntent().getBooleanExtra("isMultiple", false)) {
-                        Type type = new TypeToken<ArrayList<User>>() {
-                        }.getType();
-                        List<User> receivers = new Gson().fromJson(getIntent().getStringExtra("selectedUsers"), type);
-                        if (receivers != null) {
-                            totalReceivers = receivers.size();
-                        }
-                        initiateMeeting(meetingType, null, receivers);
-                    } else {
-                        if (user != null) {
-                            totalReceivers = 1;
-                            initiateMeeting(meetingType, user.token, null);
-                        }
-                    }
+        // FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
+        //     if (task.isSuccessful() && task.getResult() != null) {
+        //         inviterToken = task.getResult().getToken();
+        //         if (meetingType != null) {
+        //             if (getIntent().getBooleanExtra("isMultiple", false)) {
+        //                 Type type = new TypeToken<ArrayList<User>>() {}.getType();
+        //                 List<User> receivers = new Gson().fromJson(getIntent().getStringExtra("selectedUsers"), type);
+        //                 if (receivers != null) {
+        //                     totalReceivers = receivers.size();
+        //                 }
+        //                 initiateMeeting(meetingType, null, receivers);
+        //             } else {
+        //                 if (user != null) {
+        //                     totalReceivers = 1;
+        //                     initiateMeeting(meetingType, user.token, null);
+        //                 }
+        //             }
+        //         }
+        //     }
+        // });
+
+        inviterToken = preferenceManager.getString(KEY_FCM_TOKEN);
+        if (meetingType != null) {
+            if (getIntent().getBooleanExtra("isMultiple", false)) {
+                Type type = new TypeToken<ArrayList<User>>() {}.getType();
+                List<User> receivers = new Gson().fromJson(getIntent().getStringExtra("selectedUsers"), type);
+                if (receivers != null) {
+                    totalReceivers = receivers.size();
+                }
+                initiateMeeting(meetingType, null, receivers);
+            } else {
+                if (user != null) {
+                    totalReceivers = 1;
+                    initiateMeeting(meetingType, user.token, null);
                 }
             }
-        });
+        }
     }
 
     private void initiateMeeting(String meetingType, String receiverToken, List<User> receivers) {
@@ -188,12 +207,15 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.isSuccessful()) {
                             if (type.equals(REMOTE_MSG_INVITATION)) {
+                                Log.d("remote", "sent " + REMOTE_MSG_INVITATION);
                                 // Toast.makeText(OutgoingInvitationActivity.this, "Invitation sent successfully", Toast.LENGTH_SHORT).show();
                             } else if (type.equals(REMOTE_MSG_INVITATION_RESPONSE)) {
+                                Log.d("remote", "sent " + REMOTE_MSG_INVITATION_RESPONSE);
                                 // Toast.makeText(OutgoingInvitationActivity.this, "Invitation canceled", Toast.LENGTH_SHORT).show();
                                 finish();
                             }
                         } else {
+                            Log.d("remote", "success: false");
                             Toast.makeText(OutgoingInvitationActivity.this, response.message(), Toast.LENGTH_SHORT).show();
                             finish();
                         }

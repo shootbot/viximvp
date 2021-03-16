@@ -1,8 +1,10 @@
 package com.shootbot.viximvp.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -21,8 +23,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.firebase.iid.FcmBroadcastProcessor;
-import com.google.firebase.iid.FirebaseInstanceId;
+// import com.google.firebase.iid.FcmBroadcastProcessor;
+// import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -35,10 +37,13 @@ import com.shootbot.viximvp.listeners.UsersListener;
 import com.shootbot.viximvp.models.User;
 import com.shootbot.viximvp.utilities.PreferenceManager;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import me.pushy.sdk.Pushy;
 
 import static com.shootbot.viximvp.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
@@ -69,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Pushy.listen(this);
+
         preferenceManager = new PreferenceManager(getApplicationContext());
 
         imageConference = findViewById(R.id.imageConference);
@@ -82,12 +89,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
 
         findViewById(R.id.textSignOut).setOnClickListener(v -> signOut());
 
-        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
-            Log.d("FCM", "MainActivity task complete, success: " + task.isSuccessful());
-            if (task.isSuccessful() && task.getResult() != null) {
-                sendFcmTokenToDatabase(task.getResult().getToken());
-            }
-        });
+        registerToken();
 
         RecyclerView usersRecyclerView = findViewById(R.id.usersRecyclerView);
         textErrorMessage = findViewById(R.id.textErrorMessage);
@@ -105,8 +107,20 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
         }
+    }
 
+    private void registerToken() {
+        // FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
+        //     boolean success = task.isSuccessful() && task.getResult() != null;
+        //     Log.d("FCM", "get firebase instance id complete, success: " + success);
+        //     if (success) {
+        //         sendFcmTokenToDatabase(task.getResult().getToken());
+        //     }
+        // });
 
+        if (!Pushy.isRegistered(this)) {
+            new RegisterForPushNotificationsAsync(this).execute();
+        }
     }
 
     private void getUsers() {
@@ -170,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         });
     }
 
-    private void sendFcmTokenToDatabase(String token) {
+    private void saveFcmToken(String token) {
         // FirebaseFirestore database = FirebaseFirestore.getInstance();
         // DocumentReference documentReference = database
         //         .collection(KEY_COLLECTION_USERS)
@@ -193,15 +207,13 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
                 Log.d("parse", "search user ok: " + objects.size());
                 for (ParseObject userObject: objects) {
                     userObject.put(KEY_FCM_TOKEN, token);
-                    userObject.saveInBackground(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (e == null) {
-                                Log.d("parse", "token save ok");
-                            } else {
-                                Log.d("parse", "token save error: " + e.getMessage());
-                                Toast.makeText(MainActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
+                    preferenceManager.putString(KEY_FCM_TOKEN, token);
+                    userObject.saveInBackground(ex -> {
+                        if (ex == null) {
+                            Log.d("parse", "token save ok");
+                        } else {
+                            Log.d("parse", "token save error: " + ex.getMessage());
+                            Toast.makeText(MainActivity.this, "Unable to send token: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -311,6 +323,56 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_BATTERY_OPTIMIZATION) {
             checkForBatteryOptimizations();
+        }
+    }
+
+    private class RegisterForPushNotificationsAsync extends AsyncTask<Void, Void, Object> {
+        private Activity activity;
+
+        public RegisterForPushNotificationsAsync(Activity activity) {
+            this.activity = activity;
+        }
+
+        protected Object doInBackground(Void... params) {
+            try {
+                // Register the device for notifications
+                String deviceToken = Pushy.register(activity.getApplicationContext());
+
+                // Registration succeeded, log token to logcat
+                Log.d("Pushy", "Pushy device token: " + deviceToken);
+
+                // Send the token to your backend server via an HTTP GET request
+                // new URL("https://{YOUR_API_HOSTNAME}/register/device?token=" + deviceToken).openConnection();
+
+                // Provide token to onPostExecute()
+                return deviceToken;
+            } catch (Exception exc) {
+                // Registration failed, provide exception to onPostExecute()
+                return exc;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Object result) {
+            String message;
+
+            // Registration failed?
+            if (result instanceof Exception) {
+                // Display error in alert
+                message = ((Exception) result).getMessage();
+            } else {
+                message = "Pushy device token: " + result.toString() + "\n\n(copy from logcat)";
+            }
+
+            Log.d("Pushy", "onPostExecute: " + message);
+            saveFcmToken(result.toString());
+
+            // Registration succeeded, display an alert with the device token
+            // new android.app.AlertDialog.Builder(this.activity)
+            //         .setTitle("Pushy")
+            //         .setMessage(message)
+            //         .setPositiveButton(android.R.string.ok, null)
+            //         .show();
         }
     }
 }
