@@ -26,7 +26,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 // import com.google.firebase.iid.FcmBroadcastProcessor;
 // import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
-import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -37,22 +36,18 @@ import com.shootbot.viximvp.listeners.UsersListener;
 import com.shootbot.viximvp.models.User;
 import com.shootbot.viximvp.utilities.PreferenceManager;
 
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import me.pushy.sdk.Pushy;
 
-import static com.shootbot.viximvp.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FCM_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_IS_SIGNED_IN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
-import static com.shootbot.viximvp.utilities.Constants.KEY_PASSWORD;
 import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
+import static com.shootbot.viximvp.utilities.Constants.KEY_OBJECT_ID;
 
 // import com.google.firebase.firestore.DocumentReference;
 // import com.google.firebase.firestore.FieldValue;
@@ -89,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
 
         findViewById(R.id.textSignOut).setOnClickListener(v -> signOut());
 
-        registerToken();
+        checkTokenRegistered();
 
         RecyclerView usersRecyclerView = findViewById(R.id.usersRecyclerView);
         textErrorMessage = findViewById(R.id.textErrorMessage);
@@ -109,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         }
     }
 
-    private void registerToken() {
+    private void checkTokenRegistered() {
         // FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
         //     boolean success = task.isSuccessful() && task.getResult() != null;
         //     Log.d("FCM", "get firebase instance id complete, success: " + success);
@@ -172,7 +167,8 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
                     user.lastName = userObject.getString(KEY_LAST_NAME);
                     user.email = userObject.getString(KEY_EMAIL);
                     user.token = userObject.getString(KEY_FCM_TOKEN);
-                    if (user.token != null) {
+                    user.isSignedIn = userObject.getBoolean(KEY_IS_SIGNED_IN);
+                    if (user.isSignedIn) {
                         users.add(user);
                     }
                 }
@@ -184,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         });
     }
 
-    private void saveFcmToken(String token) {
+    private void saveDeviceToken(String token) {
         // FirebaseFirestore database = FirebaseFirestore.getInstance();
         // DocumentReference documentReference = database
         //         .collection(KEY_COLLECTION_USERS)
@@ -241,24 +237,21 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         //         .addOnFailureListener(e -> Toast.makeText(MainActivity.this, R.string.unable_to_sign_out, Toast.LENGTH_SHORT).show());
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
-        query.whereEqualTo("objectId", preferenceManager.getString(KEY_USER_ID));
+        query.whereEqualTo(KEY_OBJECT_ID, preferenceManager.getString(KEY_USER_ID));
         query.findInBackground((objects, e) -> {
             if (e == null) {
                 Log.d("parse", "search user ok: " + objects.size());
                 for (ParseObject userObject: objects) {
-                    userObject.remove(KEY_FCM_TOKEN);
-                    userObject.saveInBackground(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (e == null) {
-                                Log.d("parse", "token delete ok");
-                                preferenceManager.clearPreferences();
-                                            startActivity(new Intent(getApplicationContext(), SignInActivity.class));
-                                            finish();
-                            } else {
-                                Log.d("parse", "token delete error: " + e.getMessage());
-                                Toast.makeText(MainActivity.this, R.string.unable_to_sign_out, Toast.LENGTH_SHORT).show();
-                            }
+                    userObject.put(KEY_IS_SIGNED_IN, false);
+                    userObject.saveInBackground(e1 -> {
+                        if (e1 == null) {
+                            Log.d("parse", "token delete ok");
+                            preferenceManager.clearPreferences();
+                                        startActivity(new Intent(getApplicationContext(), SignInActivity.class));
+                                        finish();
+                        } else {
+                            Log.d("parse", "token delete error: " + e1.getMessage());
+                            Toast.makeText(MainActivity.this, R.string.unable_to_sign_out, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -340,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
 
                 // Registration succeeded, log token to logcat
                 Log.d("Pushy", "Pushy device token: " + deviceToken);
-
+                saveDeviceToken(deviceToken);
                 // Send the token to your backend server via an HTTP GET request
                 // new URL("https://{YOUR_API_HOSTNAME}/register/device?token=" + deviceToken).openConnection();
 
@@ -356,16 +349,13 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         protected void onPostExecute(Object result) {
             String message;
 
-            // Registration failed?
             if (result instanceof Exception) {
-                // Display error in alert
                 message = ((Exception) result).getMessage();
             } else {
-                message = "Pushy device token: " + result.toString() + "\n\n(copy from logcat)";
+                message = "Pushy device token: " + result.toString();
             }
 
             Log.d("Pushy", "onPostExecute: " + message);
-            saveFcmToken(result.toString());
 
             // Registration succeeded, display an alert with the device token
             // new android.app.AlertDialog.Builder(this.activity)

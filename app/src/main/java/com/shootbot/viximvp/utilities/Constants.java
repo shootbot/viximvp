@@ -14,6 +14,8 @@ public class Constants {
 
     public static final String KEY_USER_ID = "user_id";
     public static final String KEY_FCM_TOKEN = "fcm_token";
+    public static final String KEY_PUSHY_TOKEN = "pushy_token";
+    public static final String KEY_OBJECT_ID = "objectId";
 
 
     public static final String KEY_PREFERENCE_NAME = "videoMeetingPreference";
@@ -28,6 +30,7 @@ public class Constants {
     public static final String REMOTE_MSG_INVITER_TOKEN = "inviterToken";
     public static final String REMOTE_MSG_DATA = "data";
     public static final String REMOTE_MSG_REGISTRATION_IDS = "registration_ids";
+    public static final String REMOTE_MSG_TO = "to";
 
     public static final String REMOTE_MSG_INVITATION_RESPONSE = "invitationResponse";
     public static final String REMOTE_MSG_INVITATION_ACCEPTED = "accepted";
@@ -36,13 +39,10 @@ public class Constants {
 
     public static final String REMOTE_MSG_MEETING_ROOM = "meetingRoom";
 
-    public static Map<String, String> getRemoteMessageHeaders() {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(
-                REMOTE_MSG_AUTHORIZATION,
-                "key=AAAAeIZ_bbI:APA91bEwzIbOQIgRwa5U5rql98c4Z8HoNHAe3fAuEL8EBhcWl_vIGTT_8kCzSzq7pgSwnV98lz-zCjMfRpqWBOrqFNFdIY3m8XEpZDs9yv1nKKyZIw7D438BJ9nROH5bc-1_0ICbSV_U");
-        headers.put(REMOTE_MSG_CONTENT_TYPE, "application/json");
-        return headers;
-    }
+    public static final String FCM_API_URL = "https://fcm.googleapis.com/fcm/";
+
+    // todo pushy говорит о том что нельзя оставлять секретный ключ на клиентах, а нужно хранить на бэкенде
+    public static final String SECRET_API_KEY = "6b6d69ade4e0fe8976c679de925c357e7098676990427669880d0f80d6d9d4e7";
+    public static final String PUSHY_API_URL = "https://api.pushy.me/";
 
 }

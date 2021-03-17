@@ -68,21 +68,25 @@ class CallNotificationReceiver : BroadcastReceiver() {
         try {
             val tokens = JSONArray()
             tokens.put(receiverToken)
-            val body = JSONObject()
+
             val data = JSONObject()
             data.put(Constants.REMOTE_MSG_TYPE, Constants.REMOTE_MSG_INVITATION_RESPONSE)
             data.put(Constants.REMOTE_MSG_INVITATION_RESPONSE, type)
-            body.put(Constants.REMOTE_MSG_DATA, data)
-            body.put(Constants.REMOTE_MSG_REGISTRATION_IDS, tokens)
-            sendRemoteMessage(context, body.toString(), type, meetingType, meetingRoom)
-        } catch (_: JSONException) {
 
+            val body = JSONObject()
+            body.put(Constants.REMOTE_MSG_TO, tokens)
+            body.put(Constants.REMOTE_MSG_DATA, data)
+
+            Log.d("calls", "send remote, body: " + body.toString())
+            sendRemoteMessage(context, body.toString(), type, meetingType, meetingRoom)
+        } catch (ex: JSONException) {
+            Log.d("calls", "catch 1: " + ex.toString())
         }
     }
 
     private fun sendRemoteMessage(context: Context?, remoteMessageBody: String, type: String, meetingType: String?, meetingRoom: String?) {
         ApiClient.getClient().create(ApiService::class.java).sendRemoteMessage(
-                Constants.getRemoteMessageHeaders(),
+                Ut.getPushRequestHeaders(),
                 remoteMessageBody)
                 .enqueue(object : Callback<String?> {
                     override fun onResponse(call: Call<String?>, response: Response<String?>) {
@@ -93,16 +97,18 @@ class CallNotificationReceiver : BroadcastReceiver() {
                                             context,
                                             meetingRoom,
                                             meetingType)
-                                } catch (_: MalformedURLException) {
-                                    Log.d("TEST", "TEST")
+                                } catch (ex: MalformedURLException) {
+                                    Log.d("calls", "catch 2: " + ex.toString())
                                 }
                             }
                         } else {
+                            Log.d("calls", "catch 3: " + response.message())
                             Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show()
                         }
                     }
 
                     override fun onFailure(call: Call<String?>, t: Throwable) {
+                        Log.d("calls", "catch 4: " + t.toString())
                         Toast.makeText(context, t.message, Toast.LENGTH_SHORT).show()
                     }
                 })

@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 public class User implements Serializable {
     public String firstName, lastName, email, token;
+    public boolean isSignedIn;
 
     @Override
     public boolean equals(Object o) {

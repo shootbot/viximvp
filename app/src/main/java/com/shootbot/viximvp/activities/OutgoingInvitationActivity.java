@@ -56,8 +56,8 @@ import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITER_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_MEETING_ROOM;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_MEETING_TYPE;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_REGISTRATION_IDS;
+import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_TO;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_TYPE;
-import static com.shootbot.viximvp.utilities.Constants.getRemoteMessageHeaders;
 
 public class OutgoingInvitationActivity extends AppCompatActivity {
 
@@ -157,7 +157,6 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
     private void initiateMeeting(String meetingType, String receiverToken, List<User> receivers) {
         try {
             JSONArray tokens = new JSONArray();
-
             if (receiverToken != null) {
                 tokens.put(receiverToken);
             }
@@ -188,8 +187,8 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             meetingRoom = preferenceManager.getString(KEY_USER_ID) + "_" + UUID.randomUUID().toString().substring(0, 5);
             data.put(REMOTE_MSG_MEETING_ROOM, meetingRoom);
 
+            body.put(REMOTE_MSG_TO, tokens);
             body.put(REMOTE_MSG_DATA, data);
-            body.put(REMOTE_MSG_REGISTRATION_IDS, tokens);
 
             sendRemoteMessage(body.toString(), REMOTE_MSG_INVITATION);
         } catch (JSONException e) {
@@ -200,7 +199,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
 
     private void sendRemoteMessage(String remoteMessageBody, String type) {
         ApiClient.getClient().create(ApiService.class).sendRemoteMessage(
-                getRemoteMessageHeaders(),
+                Ut.getPushRequestHeaders(),
                 remoteMessageBody)
                 .enqueue(new Callback<String>() {
                     @Override
@@ -215,7 +214,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
                                 finish();
                             }
                         } else {
-                            Log.d("remote", "success: false");
+                            Log.d("remote", "success: false, " + response.message());
                             Toast.makeText(OutgoingInvitationActivity.this, response.message(), Toast.LENGTH_SHORT).show();
                             finish();
                         }
@@ -223,6 +222,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Log.d("remote", "success: false, " + t.getMessage());
                         Toast.makeText(OutgoingInvitationActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                         finish();
                     }
@@ -249,8 +249,8 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             data.put(REMOTE_MSG_TYPE, REMOTE_MSG_INVITATION_RESPONSE);
             data.put(REMOTE_MSG_INVITATION_RESPONSE, REMOTE_MSG_INVITATION_CANCELED);
 
+            body.put(REMOTE_MSG_TO, tokens);
             body.put(REMOTE_MSG_DATA, data);
-            body.put(REMOTE_MSG_REGISTRATION_IDS, tokens);
 
             sendRemoteMessage(body.toString(), REMOTE_MSG_INVITATION_RESPONSE);
         } catch (JSONException e) {
@@ -284,15 +284,17 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(
-                invitationResponseReceiver,
-                new IntentFilter(REMOTE_MSG_INVITATION_RESPONSE)
+        LocalBroadcastManager
+                .getInstance(getApplicationContext())
+                .registerReceiver(invitationResponseReceiver, new IntentFilter(REMOTE_MSG_INVITATION_RESPONSE)
         );
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(invitationResponseReceiver);
+        LocalBroadcastManager
+                .getInstance(getApplicationContext())
+                .unregisterReceiver(invitationResponseReceiver);
     }
 }

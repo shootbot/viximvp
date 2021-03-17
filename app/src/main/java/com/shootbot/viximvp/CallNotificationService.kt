@@ -1,18 +1,21 @@
 package com.shootbot.viximvp
 
-import android.app.*
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.shootbot.viximvp.utilities.Constants
-import android.media.RingtoneManager
-import android.media.AudioAttributes
 import com.shootbot.viximvp.activities.IncomingInvitationActivity
+import com.shootbot.viximvp.utilities.Constants
 
 
-class CallNotificationService: Service(){
+class CallNotificationService : Service() {
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -78,7 +81,6 @@ class CallNotificationService: Service(){
 
         return START_STICKY
     }
-
 
 
     private fun NotificationManager.buildChannel() {

@@ -1,29 +1,28 @@
 package com.shootbot.viximvp.activities
 
-import android.app.Activity
 import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import com.shootbot.viximvp.R
-import org.json.JSONArray
-import org.json.JSONObject
-import android.widget.Toast
-import com.shootbot.viximvp.network.ApiClient
-import com.shootbot.viximvp.network.ApiService
-import com.shootbot.viximvp.utilities.Ut
 import android.content.Intent
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import android.content.IntentFilter
 import android.os.Build
+import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.shootbot.viximvp.CallNotificationService
+import com.shootbot.viximvp.R
+import com.shootbot.viximvp.network.ApiClient
+import com.shootbot.viximvp.network.ApiService
 import com.shootbot.viximvp.utilities.Constants
+import com.shootbot.viximvp.utilities.Ut
+import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -88,12 +87,15 @@ class IncomingInvitationActivity : AppCompatActivity() {
         try {
             val tokens = JSONArray()
             tokens.put(receiverToken)
-            val body = JSONObject()
+
             val data = JSONObject()
             data.put(Constants.REMOTE_MSG_TYPE, Constants.REMOTE_MSG_INVITATION_RESPONSE)
             data.put(Constants.REMOTE_MSG_INVITATION_RESPONSE, type)
+
+            val body = JSONObject()
+            body.put(Constants.REMOTE_MSG_TO, tokens)
             body.put(Constants.REMOTE_MSG_DATA, data)
-            body.put(Constants.REMOTE_MSG_REGISTRATION_IDS, tokens)
+
             sendRemoteMessage(body.toString(), type)
         } catch (e: JSONException) {
             Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
@@ -111,7 +113,7 @@ class IncomingInvitationActivity : AppCompatActivity() {
 
     private fun sendRemoteMessage(remoteMessageBody: String, type: String) {
         ApiClient.getClient().create(ApiService::class.java).sendRemoteMessage(
-                Constants.getRemoteMessageHeaders(),
+                Ut.getPushRequestHeaders(),
                 remoteMessageBody)
                 .enqueue(object : Callback<String?> {
                     override fun onResponse(call: Call<String?>, response: Response<String?>) {
@@ -159,15 +161,17 @@ class IncomingInvitationActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(
-                invitationResponseReceiver,
-                IntentFilter(Constants.REMOTE_MSG_INVITATION_RESPONSE)
-        )
+        LocalBroadcastManager
+                .getInstance(applicationContext)
+                .registerReceiver(invitationResponseReceiver, IntentFilter(Constants.REMOTE_MSG_INVITATION_RESPONSE)
+                )
     }
 
     override fun onStop() {
         super.onStop()
-        LocalBroadcastManager.getInstance(applicationContext).unregisterReceiver(invitationResponseReceiver)
+        LocalBroadcastManager
+                .getInstance(applicationContext)
+                .unregisterReceiver(invitationResponseReceiver)
     }
 
     override fun onDestroy() {

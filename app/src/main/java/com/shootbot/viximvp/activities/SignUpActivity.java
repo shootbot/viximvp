@@ -24,7 +24,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
+import static com.shootbot.viximvp.utilities.Constants.KEY_FCM_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
+import static com.shootbot.viximvp.utilities.Constants.KEY_IS_SIGNED_IN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_PASSWORD;
 import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
@@ -107,25 +109,23 @@ public class SignUpActivity extends AppCompatActivity {
         userObject.put(KEY_LAST_NAME, inputLastName.getText().toString());
         userObject.put(KEY_EMAIL, inputEmail.getText().toString());
         userObject.put(KEY_PASSWORD, inputPassword.getText().toString());
-        userObject.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Log.d("parse", "register user ok");
-                    preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
-                    preferenceManager.putString(KEY_USER_ID, userObject.getObjectId());
-                    preferenceManager.putString(KEY_FIRST_NAME, inputFirstName.getText().toString());
-                    preferenceManager.putString(KEY_LAST_NAME, inputLastName.getText().toString());
-                    preferenceManager.putString(KEY_EMAIL, inputEmail.getText().toString());
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                } else {
-                    Log.d("parse", "register user error: " + e.getMessage());
-                    signUpProgressBar.setVisibility(View.INVISIBLE);
-                    buttonSignUp.setVisibility(View.VISIBLE);
-                    Toast.makeText(SignUpActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+        userObject.put(KEY_IS_SIGNED_IN, false);
+        userObject.saveInBackground(e -> {
+            if (e == null) {
+                Log.d("parse", "register user ok");
+                preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
+                preferenceManager.putString(KEY_USER_ID, userObject.getObjectId());
+                preferenceManager.putString(KEY_FIRST_NAME, inputFirstName.getText().toString());
+                preferenceManager.putString(KEY_LAST_NAME, inputLastName.getText().toString());
+                preferenceManager.putString(KEY_EMAIL, inputEmail.getText().toString());
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            } else {
+                Log.d("parse", "register user error: " + e.getMessage());
+                signUpProgressBar.setVisibility(View.INVISIBLE);
+                buttonSignUp.setVisibility(View.VISIBLE);
+                Toast.makeText(SignUpActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
         // database.collection(Constants.KEY_COLLECTION_USERS)

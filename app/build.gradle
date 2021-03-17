@@ -67,7 +67,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.firebase:firebase-analytics'
     // firebase
-//    implementation 'com.google.firebase:firebase-messaging:21.0.1'
+    implementation 'com.google.firebase:firebase-messaging:21.0.1'
 //    implementation 'com.google.firebase:firebase-firestore:22.1.0'
     implementation "com.github.parse-community.Parse-SDK-Android:parse:1.26.0"
     implementation 'me.pushy:sdk:1.0.67'

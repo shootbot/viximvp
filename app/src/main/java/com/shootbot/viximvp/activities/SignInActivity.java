@@ -30,7 +30,6 @@ import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_PASSWORD;
 import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
 
-// import com.google.firebase.firestore.DocumentSnapshot;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -108,37 +107,35 @@ public class SignInActivity extends AppCompatActivity {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
         query.whereEqualTo(KEY_EMAIL, inputEmail.getText().toString());
         query.whereEqualTo(KEY_PASSWORD, inputPassword.getText().toString());
-        query.findInBackground(new FindCallback<ParseObject>() {
-            public void done(List<ParseObject> result, ParseException e) {
-                if (e == null) {
-                    Log.d("parse", "check credentials ok: " + result.size());
-                    if (result.size() > 0) {
-                        ParseObject user = result.get(0);
-                        preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
-                        preferenceManager.putString(KEY_USER_ID, user.getObjectId());
-                        preferenceManager.putString(KEY_FIRST_NAME, user.getString(KEY_FIRST_NAME));
-                        preferenceManager.putString(KEY_LAST_NAME, user.getString(KEY_LAST_NAME));
-                        preferenceManager.putString(KEY_EMAIL, user.getString(KEY_EMAIL));
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                    }
-                } else {
-                    Log.d("parse", "check credentials error: " + e.getMessage());
-                    signInProgressBar.setVisibility(View.INVISIBLE);
-                    buttonSignIn.setVisibility(View.VISIBLE);
-                    Log.d("FCM", "Невозможно войти");
-                    Toast.makeText(SignInActivity.this, "Пользователь не зарегистрирован", Toast.LENGTH_SHORT).show();
+        query.findInBackground((result, e) -> {
+            if (e == null) {
+                Log.d("parse", "check credentials ok: " + result.size());
+                if (result.size() > 0) {
+                    ParseObject user = result.get(0);
+
+                    user.put(KEY_IS_SIGNED_IN, true);
+                    user.saveInBackground();
+
+                    preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
+                    preferenceManager.putString(KEY_USER_ID, user.getObjectId());
+                    preferenceManager.putString(KEY_FIRST_NAME, user.getString(KEY_FIRST_NAME));
+                    preferenceManager.putString(KEY_LAST_NAME, user.getString(KEY_LAST_NAME));
+                    preferenceManager.putString(KEY_EMAIL, user.getString(KEY_EMAIL));
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
                 }
+            } else {
+                Log.d("parse", "check credentials error: " + e.getMessage());
+                signInProgressBar.setVisibility(View.INVISIBLE);
+                buttonSignIn.setVisibility(View.VISIBLE);
+                Log.d("FCM", "Невозможно войти");
+                Toast.makeText(SignInActivity.this, "Пользователь не зарегистрирован", Toast.LENGTH_SHORT).show();
             }
         });
-
-
     }
 
     private boolean CheckAllFields() {
-
-
         if (inputEmail.length() == 0) {
             inputEmail.setError("Введите адрес электронной почты.");
             return false;
@@ -155,7 +152,6 @@ public class SignInActivity extends AppCompatActivity {
             return false;
         }
 
-        // after all validation return true.
         return true;
     }
 }
