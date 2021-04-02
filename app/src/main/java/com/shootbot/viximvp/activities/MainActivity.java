@@ -1,10 +1,8 @@
 package com.shootbot.viximvp.activities;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -23,13 +21,9 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-// import com.google.firebase.iid.FcmBroadcastProcessor;
-// import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
-import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.SaveCallback;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.adapters.UsersAdapter;
 import com.shootbot.viximvp.listeners.UsersListener;
@@ -46,8 +40,12 @@ import static com.shootbot.viximvp.utilities.Constants.KEY_FCM_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_IS_SIGNED_IN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
-import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
 import static com.shootbot.viximvp.utilities.Constants.KEY_OBJECT_ID;
+import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
+import static com.shootbot.viximvp.utilities.Constants.REQUEST_CODE_BATTERY_OPTIMIZATION;
+
+// import com.google.firebase.iid.FcmBroadcastProcessor;
+// import com.google.firebase.iid.FirebaseInstanceId;
 
 // import com.google.firebase.firestore.DocumentReference;
 // import com.google.firebase.firestore.FieldValue;
@@ -62,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
     private SwipeRefreshLayout swipeRefreshLayout;
     private ImageView imageConference;
 
-    private int REQUEST_CODE_BATTERY_OPTIMIZATION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +81,6 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
 
         findViewById(R.id.textSignOut).setOnClickListener(v -> signOut());
 
-        checkTokenRegistered();
-
         RecyclerView usersRecyclerView = findViewById(R.id.usersRecyclerView);
         textErrorMessage = findViewById(R.id.textErrorMessage);
 
@@ -94,9 +89,9 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         usersRecyclerView.setAdapter(usersAdapter);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this::getUsers);
+        swipeRefreshLayout.setOnRefreshListener(this::loadUsers);
 
-        getUsers();
+        loadUsers();
         checkForBatteryOptimizations();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
@@ -104,55 +99,10 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         }
     }
 
-    private void checkTokenRegistered() {
-        // FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
-        //     boolean success = task.isSuccessful() && task.getResult() != null;
-        //     Log.d("FCM", "get firebase instance id complete, success: " + success);
-        //     if (success) {
-        //         sendFcmTokenToDatabase(task.getResult().getToken());
-        //     }
-        // });
-
-        if (!Pushy.isRegistered(this)) {
-            new RegisterForPushNotificationsAsync(this).execute();
-        }
-    }
-
-    private void getUsers() {
+    private void loadUsers() {
         textErrorMessage.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setRefreshing(true);
 
-        /////////////////////////
-        // FirebaseFirestore database = FirebaseFirestore.getInstance();
-        // database.collection(KEY_COLLECTION_USERS).get()
-        //         .addOnCompleteListener(task -> {
-        //             swipeRefreshLayout.setRefreshing(false);
-        //             String myUserId = preferenceManager.getString(KEY_USER_ID);
-        //             if (task.isSuccessful() && task.getResult() != null) {
-        //                 users.clear();
-        //                 for (QueryDocumentSnapshot snapshot : task.getResult()) {
-        //                     if (myUserId.equals(snapshot.getId())) continue;
-        //                     User user = new User();
-        //                     user.firstName = snapshot.getString(KEY_FIRST_NAME);
-        //                     user.lastName = snapshot.getString(KEY_LAST_NAME);
-        //                     user.email = snapshot.getString(KEY_EMAIL);
-        //                     user.token = snapshot.getString(KEY_FCM_TOKEN);
-        //                     if (user.token != null) {
-        //                         users.add(user);
-        //                     }
-        //                 }
-        //                 usersAdapter.notifyDataSetChanged();
-        //                 // if (users.isEmpty()) {
-        //                 //     textErrorMessage.setText(String.format("%s", "No users available"));
-        //                 //     textErrorMessage.setVisibility(View.VISIBLE);
-        //                 // }
-        //             } else {
-        //                 Toast.makeText(this, "Error: can't update user list", Toast.LENGTH_SHORT).show();
-        //                 // textErrorMessage.setText(String.format("%s", "No users available"));
-        //                 // textErrorMessage.setVisibility(View.VISIBLE);
-        //             }
-        //         });
-        /////////////////////////
         ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
         query.findInBackground((objects, e) -> {
             swipeRefreshLayout.setRefreshing(false);
@@ -180,75 +130,20 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         });
     }
 
-    private void saveDeviceToken(String token) {
-        // FirebaseFirestore database = FirebaseFirestore.getInstance();
-        // DocumentReference documentReference = database
-        //         .collection(KEY_COLLECTION_USERS)
-        //         .document(preferenceManager.getString(KEY_USER_ID));
-        // documentReference
-        //         .update(KEY_FCM_TOKEN, token)
-        //         .addOnSuccessListener(aVoid -> {
-        //             Log.d("FCM", "Token updated successfully");
-        //             // Toast.makeText(MainActivity.this, "Token updated successfully", Toast.LENGTH_SHORT).show();
-        //         })
-        //         .addOnFailureListener(e -> {
-        //             Log.d("FCM", "Unable to send token: " + e.getMessage());
-        //             Toast.makeText(MainActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        //         });
-        ///////////////////////
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
-        query.whereEqualTo("objectId", preferenceManager.getString(KEY_USER_ID));
-        query.findInBackground((objects, e) -> {
-            if (e == null) {
-                Log.d("parse", "search user ok: " + objects.size());
-                for (ParseObject userObject: objects) {
-                    userObject.put(KEY_FCM_TOKEN, token);
-                    preferenceManager.putString(KEY_FCM_TOKEN, token);
-                    userObject.saveInBackground(ex -> {
-                        if (ex == null) {
-                            Log.d("parse", "token save ok");
-                        } else {
-                            Log.d("parse", "token save error: " + ex.getMessage());
-                            Toast.makeText(MainActivity.this, "Unable to send token: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            } else {
-                Log.d("parse", "search user error: " + e.getMessage());
-                Toast.makeText(MainActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     private void signOut() {
-        // Toast.makeText(this, "Signing out...", Toast.LENGTH_SHORT).show();
-        // FirebaseFirestore database = FirebaseFirestore.getInstance();
-        // DocumentReference documentReference = database
-        //         .collection(KEY_COLLECTION_USERS)
-        //         .document(preferenceManager.getString(KEY_USER_ID));
-        // Map<String, Object> updates = new HashMap<>();
-        // updates.put(KEY_FCM_TOKEN, FieldValue.delete());
-        // documentReference.update(updates)
-        //         .addOnSuccessListener(aVoid -> {
-        //             preferenceManager.clearPreferences();
-        //             startActivity(new Intent(getApplicationContext(), SignInActivity.class));
-        //             finish();
-        //         })
-        //         .addOnFailureListener(e -> Toast.makeText(MainActivity.this, R.string.unable_to_sign_out, Toast.LENGTH_SHORT).show());
-
         ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
         query.whereEqualTo(KEY_OBJECT_ID, preferenceManager.getString(KEY_USER_ID));
         query.findInBackground((objects, e) -> {
             if (e == null) {
                 Log.d("parse", "search user ok: " + objects.size());
-                for (ParseObject userObject: objects) {
+                for (ParseObject userObject : objects) {
                     userObject.put(KEY_IS_SIGNED_IN, false);
                     userObject.saveInBackground(e1 -> {
                         if (e1 == null) {
                             Log.d("parse", "token delete ok");
                             preferenceManager.clearPreferences();
-                                        startActivity(new Intent(getApplicationContext(), SignInActivity.class));
-                                        finish();
+                            startActivity(new Intent(getApplicationContext(), SignInActivity.class));
+                            finish();
                         } else {
                             Log.d("parse", "token delete error: " + e1.getMessage());
                             Toast.makeText(MainActivity.this, R.string.unable_to_sign_out, Toast.LENGTH_SHORT).show();
@@ -263,16 +158,16 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
     }
 
     @Override
-    public void initiateMeeting(User user, String meetingType) {
-        if (user.token == null || user.token.trim().isEmpty()) {
+    public void initiateMeeting(User callable, String meetingType) {
+        if (callable.token == null || callable.token.trim().isEmpty()) {
             Toast.makeText(
                     this,
-                    user.firstName + " " + user.lastName + getString(R.string.is_not_available),
+                    callable.firstName + " " + callable.lastName + getString(R.string.is_not_available),
                     Toast.LENGTH_SHORT)
                     .show();
         } else {
             Intent intent = new Intent(getApplicationContext(), OutgoingInvitationActivity.class);
-            intent.putExtra("user", user);
+            intent.putExtra("user", callable);
             intent.putExtra("type", meetingType);
             startActivity(intent);
         }
@@ -316,53 +211,6 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_BATTERY_OPTIMIZATION) {
             checkForBatteryOptimizations();
-        }
-    }
-
-    private class RegisterForPushNotificationsAsync extends AsyncTask<Void, Void, Object> {
-        private Activity activity;
-
-        public RegisterForPushNotificationsAsync(Activity activity) {
-            this.activity = activity;
-        }
-
-        protected Object doInBackground(Void... params) {
-            try {
-                // Register the device for notifications
-                String deviceToken = Pushy.register(activity.getApplicationContext());
-
-                // Registration succeeded, log token to logcat
-                Log.d("Pushy", "Pushy device token: " + deviceToken);
-                saveDeviceToken(deviceToken);
-                // Send the token to your backend server via an HTTP GET request
-                // new URL("https://{YOUR_API_HOSTNAME}/register/device?token=" + deviceToken).openConnection();
-
-                // Provide token to onPostExecute()
-                return deviceToken;
-            } catch (Exception exc) {
-                // Registration failed, provide exception to onPostExecute()
-                return exc;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Object result) {
-            String message;
-
-            if (result instanceof Exception) {
-                message = ((Exception) result).getMessage();
-            } else {
-                message = "Pushy device token: " + result.toString();
-            }
-
-            Log.d("Pushy", "onPostExecute: " + message);
-
-            // Registration succeeded, display an alert with the device token
-            // new android.app.AlertDialog.Builder(this.activity)
-            //         .setTitle("Pushy")
-            //         .setMessage(message)
-            //         .setPositiveButton(android.R.string.ok, null)
-            //         .show();
         }
     }
 }

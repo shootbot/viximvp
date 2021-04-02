@@ -45,4 +45,6 @@ public class Constants {
     public static final String SECRET_API_KEY = "6b6d69ade4e0fe8976c679de925c357e7098676990427669880d0f80d6d9d4e7";
     public static final String PUSHY_API_URL = "https://api.pushy.me/";
 
+    public static int REQUEST_CODE_BATTERY_OPTIMIZATION = 1;
+
 }

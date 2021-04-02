@@ -94,11 +94,17 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
         textUsername = findViewById(R.id.textUsername);
         textEmail = findViewById(R.id.textEmail);
 
-        User user = (User) getIntent().getSerializableExtra("user");
-        if (user != null) {
-            textFirstChar.setText(user.firstName.substring(0, 1));
-            textUsername.setText(String.format("%s %s", user.firstName, user.lastName));
-            textEmail.setText(user.email);
+        User callable = (User) getIntent().getSerializableExtra("user");
+
+        if (callable != null) {
+            textFirstChar.setText(callable.firstName.substring(0, 1));
+            textUsername.setText(String.format("%s %s", callable.firstName, callable.lastName));
+            textEmail.setText(callable.email);
+
+            Log.d("OutgoingInv", "onCreate intent first name: " + callable.firstName);
+            Log.d("OutgoingInv", "onCreate intent callable token: " + callable.token);
+        } else {
+            Log.d("OutgoingInv", "onCreate callable is null");
         }
 
         ImageView imageStopInvitation = findViewById(R.id.imageStopInvitation);
@@ -109,8 +115,8 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
                 List<User> receivers = new Gson().fromJson(getIntent().getStringExtra("selectedUsers"), type);
                 cancelInvitation(null, receivers);
             } else {
-                if (user != null) {
-                    cancelInvitation(user.token, null);
+                if (callable != null) {
+                    cancelInvitation(callable.token, null);
                 }
             }
         });
@@ -137,6 +143,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
         // });
 
         inviterToken = preferenceManager.getString(KEY_FCM_TOKEN);
+        Log.d("OutgoingInv", "onCreate inviter token: " + inviterToken);
         if (meetingType != null) {
             if (getIntent().getBooleanExtra("isMultiple", false)) {
                 Type type = new TypeToken<ArrayList<User>>() {}.getType();
@@ -146,25 +153,25 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
                 }
                 initiateMeeting(meetingType, null, receivers);
             } else {
-                if (user != null) {
+                if (callable != null) {
                     totalReceivers = 1;
-                    initiateMeeting(meetingType, user.token, null);
+                    initiateMeeting(meetingType, callable.token, null);
                 }
             }
         }
     }
 
-    private void initiateMeeting(String meetingType, String receiverToken, List<User> receivers) {
+    private void initiateMeeting(String meetingType, String callableToken, List<User> callables) {
         try {
             JSONArray tokens = new JSONArray();
-            if (receiverToken != null) {
-                tokens.put(receiverToken);
+            if (callableToken != null) {
+                tokens.put(callableToken);
             }
 
-            if (receivers != null && !receivers.isEmpty()) {
+            if (callables != null && !callables.isEmpty()) {
                 StringBuilder usernames = new StringBuilder();
-                for (int i = 0; i < receivers.size(); i++) {
-                    User user = receivers.get(i);
+                for (int i = 0; i < callables.size(); i++) {
+                    User user = callables.get(i);
                     tokens.put(user.token);
                     usernames.append(user.firstName + " " + user.lastName + "\n");
                 }

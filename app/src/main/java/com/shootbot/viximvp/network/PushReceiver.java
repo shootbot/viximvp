@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.RingtoneManager;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -59,6 +60,11 @@ public class PushReceiver extends BroadcastReceiver {
         // // Build the notification and display it
         // notificationManager.notify(1, builder.build());
         ////////////////////////////////////////////////
+
+        Log.d("PushReceiver", "onReceive intent first name: " + intent.getStringExtra(Constants.KEY_FIRST_NAME));
+        Log.d("PushReceiver", "onReceive intent inviter token: " + intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN));
+        Log.d("PushReceiver", "onReceive intent meeting room: " + intent.getStringExtra(Constants.REMOTE_MSG_MEETING_ROOM));
+        Log.d("PushReceiver", "onReceive intent msg type: " + intent.getStringExtra(REMOTE_MSG_TYPE));
 
         String type = intent.getStringExtra(REMOTE_MSG_TYPE);
 

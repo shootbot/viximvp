@@ -4,7 +4,7 @@ import com.shootbot.viximvp.models.User;
 
 public interface  UsersListener {
 
-    void initiateMeeting(User user, String meetingType);
+    void initiateMeeting(User callable, String meetingType);
 
     void onMultipleUsersAction(boolean isMultipleUsersSelected);
 }

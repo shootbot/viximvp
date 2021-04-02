@@ -1,6 +1,8 @@
 package com.shootbot.viximvp.activities;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -12,18 +14,17 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
-import com.parse.FindCallback;
-import com.parse.Parse;
-import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.utilities.PreferenceManager;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
+import me.pushy.sdk.Pushy;
+
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
+import static com.shootbot.viximvp.utilities.Constants.KEY_FCM_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_IS_SIGNED_IN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
@@ -45,7 +46,6 @@ public class SignInActivity extends AppCompatActivity {
     private MaterialButton buttonSignIn;
     private ProgressBar signInProgressBar;
     private PreferenceManager preferenceManager;
-    boolean isAllFieldsChecked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,42 +67,15 @@ public class SignInActivity extends AppCompatActivity {
         signInProgressBar = findViewById(R.id.signInProgressBar);
 
         buttonSignIn.setOnClickListener(v -> {
-            if (CheckAllFields()) {
+            if (isAllFieldsOk()) {
                 signIn();
             }
-            isAllFieldsChecked = CheckAllFields();
-
         });
     }
 
     private void signIn() {
         buttonSignIn.setVisibility(View.INVISIBLE);
         signInProgressBar.setVisibility(View.VISIBLE);
-
-        // FirebaseFirestore database = FirebaseFirestore.getInstance();
-        // database.collection(KEY_COLLECTION_USERS)
-        //         .whereEqualTo(KEY_EMAIL, inputEmail.getText().toString())
-        //         .whereEqualTo(KEY_PASSWORD, inputPassword.getText().toString())
-        //         .get()
-        //         .addOnCompleteListener(task -> {
-        //             if (task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0) {
-        //                 Log.d("FCM", "Sign in ok, size() = " + task.getResult().getDocuments().size());
-        //                 DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
-        //                 preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
-        //                 preferenceManager.putString(KEY_USER_ID, snapshot.getId());
-        //                 preferenceManager.putString(KEY_FIRST_NAME, snapshot.getString(KEY_FIRST_NAME));
-        //                 preferenceManager.putString(KEY_LAST_NAME, snapshot.getString(KEY_LAST_NAME));
-        //                 preferenceManager.putString(KEY_EMAIL, snapshot.getString(KEY_EMAIL));
-        //                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        //                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        //                 startActivity(intent);
-        //             } else {
-        //                 signInProgressBar.setVisibility(View.INVISIBLE);
-        //                 buttonSignIn.setVisibility(View.VISIBLE);
-        //                 Log.d("FCM", "Невозможно войти");
-        //                 Toast.makeText(SignInActivity.this, "Пользователь не зарегистрирован", Toast.LENGTH_SHORT).show();
-        //             }
-        //         });
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
         query.whereEqualTo(KEY_EMAIL, inputEmail.getText().toString());
@@ -115,6 +88,10 @@ public class SignInActivity extends AppCompatActivity {
 
                     user.put(KEY_IS_SIGNED_IN, true);
                     user.saveInBackground();
+
+                    if (!Pushy.isRegistered(this)) {
+                        new RegisterForPushNotificationsAsync(this).execute();
+                    }
 
                     preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
                     preferenceManager.putString(KEY_USER_ID, user.getObjectId());
@@ -135,7 +112,7 @@ public class SignInActivity extends AppCompatActivity {
         });
     }
 
-    private boolean CheckAllFields() {
+    private boolean isAllFieldsOk() {
         if (inputEmail.length() == 0) {
             inputEmail.setError("Введите адрес электронной почты.");
             return false;
@@ -153,5 +130,62 @@ public class SignInActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    private void saveDeviceToken(String token) {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
+        query.whereEqualTo("objectId", preferenceManager.getString(KEY_USER_ID));
+        query.findInBackground((objects, e) -> {
+            if (e == null) {
+                Log.d("parse", "search user ok: " + objects.size());
+                for (ParseObject userObject : objects) {
+                    userObject.put(KEY_FCM_TOKEN, token);
+                    userObject.saveInBackground(ex -> {
+                        if (ex == null) {
+                            Log.d("parse", "token save ok");
+                        } else {
+                            Log.d("parse", "token save error: " + ex.getMessage());
+                            Toast.makeText(SignInActivity.this, "Unable to send token: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            } else {
+                Log.d("parse", "search user error: " + e.getMessage());
+                Toast.makeText(SignInActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private class RegisterForPushNotificationsAsync extends AsyncTask<Void, Void, Object> {
+        private Activity activity;
+
+        public RegisterForPushNotificationsAsync(Activity activity) {
+            this.activity = activity;
+        }
+
+        protected Object doInBackground(Void... params) {
+            try {
+                String deviceToken = Pushy.register(activity.getApplicationContext());
+
+                Log.d("Pushy", "Pushy device token: " + deviceToken);
+                preferenceManager.putString(KEY_FCM_TOKEN, deviceToken);
+                saveDeviceToken(deviceToken);
+
+                return deviceToken;
+            } catch (Exception exc) {
+                return exc;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Object result) {
+            if (result instanceof Exception) {
+                String message = ((Exception) result).getMessage();
+                Log.d("Pushy", "onPostExecute error: " + message);
+            } else {
+                String message = "Pushy device token: " + result.toString();
+                Log.d("Pushy", "onPostExecute: " + message);
+            }
+        }
     }
 }

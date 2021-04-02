@@ -10,6 +10,7 @@ import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.shootbot.viximvp.activities.IncomingInvitationActivity
 import com.shootbot.viximvp.utilities.Constants
@@ -21,6 +22,10 @@ class CallNotificationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("CallNoteService", "onStartCommand intent first name: " + intent?.getStringExtra(Constants.KEY_FIRST_NAME))
+        Log.d("CallNoteService", "onStartCommand intent inviter token: " + intent?.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
+        Log.d("CallNoteService", "onStartCommand intent meeting room: " + intent?.getStringExtra(Constants.REMOTE_MSG_MEETING_ROOM))
+
         val callReceiver = Intent(applicationContext, CallNotificationReceiver::class.java)
         callReceiver.putExtra(Constants.REMOTE_MSG_MEETING_TYPE, intent?.getStringExtra(Constants.REMOTE_MSG_MEETING_TYPE))
         callReceiver.putExtra(Constants.KEY_FIRST_NAME, intent?.getStringExtra(Constants.KEY_FIRST_NAME))
@@ -66,7 +71,6 @@ class CallNotificationService : Service() {
                 .setSound(alarmSound)
                 .setFullScreenIntent(incomingCallPendingIntent, true)
 
-
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         with(notificationManager) {
@@ -77,11 +81,8 @@ class CallNotificationService : Service() {
             startForeground(120, notification)
         }
 
-
-
         return START_STICKY
     }
-
 
     private fun NotificationManager.buildChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

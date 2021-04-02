@@ -20,6 +20,10 @@ import java.net.MalformedURLException
 
 class CallNotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
+        Log.d("CallNoteReceiver", "onReceive intent first name: " + intent?.getStringExtra(Constants.KEY_FIRST_NAME))
+        Log.d("CallNoteReceiver", "onReceive intent inviter token: " + intent?.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
+        Log.d("CallNoteReceiver", "onReceive intent meeting room: " + intent?.getStringExtra(Constants.REMOTE_MSG_MEETING_ROOM))
+
         intent?.action?.let { action ->
             when (action) {
                 "RECEIVE_CALL" -> {
