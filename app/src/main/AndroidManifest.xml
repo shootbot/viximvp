@@ -67,6 +67,13 @@
             android:name=".CallNotificationService"
             android:enabled="true"
             android:exported="false" />
+
+        <service
+            android:name=".PushService"
+            android:enabled="true"
+            android:exported="true" />
+
+
         <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
              See README(https://goo.gl/l4GJaQ) for more. -->
         <meta-data
