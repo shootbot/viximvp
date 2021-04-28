@@ -36,13 +36,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import me.pushy.sdk.Pushy;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
-import static com.shootbot.viximvp.utilities.Constants.KEY_FCM_TOKEN;
+import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
@@ -55,7 +54,6 @@ import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITATION_RES
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_INVITER_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_MEETING_ROOM;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_MEETING_TYPE;
-import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_REGISTRATION_IDS;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_TO;
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_TYPE;
 
@@ -142,7 +140,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
         //     }
         // });
 
-        inviterToken = preferenceManager.getString(KEY_FCM_TOKEN);
+        inviterToken = preferenceManager.getString(DEVICE_TOKEN);
         Log.d("OutgoingInv", "onCreate inviter token: " + inviterToken);
         if (meetingType != null) {
             if (getIntent().getBooleanExtra("isMultiple", false)) {

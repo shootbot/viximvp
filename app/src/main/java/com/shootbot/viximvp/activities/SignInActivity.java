@@ -18,13 +18,12 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.utilities.PreferenceManager;
+import com.shootbot.viximvp.utilities.Ut;
 
 import java.util.regex.Pattern;
 
-import me.pushy.sdk.Pushy;
-
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
-import static com.shootbot.viximvp.utilities.Constants.KEY_FCM_TOKEN;
+import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_IS_SIGNED_IN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
@@ -89,7 +88,7 @@ public class SignInActivity extends AppCompatActivity {
                     user.put(KEY_IS_SIGNED_IN, true);
                     user.saveInBackground();
 
-                    if (!Pushy.isRegistered(this)) {
+                    if (!Ut.isRegistered(this)) {
                         new RegisterForPushNotificationsAsync(this).execute();
                     }
 
@@ -139,7 +138,7 @@ public class SignInActivity extends AppCompatActivity {
             if (e == null) {
                 Log.d("parse", "search user ok: " + objects.size());
                 for (ParseObject userObject : objects) {
-                    userObject.put(KEY_FCM_TOKEN, token);
+                    userObject.put(DEVICE_TOKEN, token);
                     userObject.saveInBackground(ex -> {
                         if (ex == null) {
                             Log.d("parse", "token save ok");
@@ -165,10 +164,10 @@ public class SignInActivity extends AppCompatActivity {
 
         protected Object doInBackground(Void... params) {
             try {
-                String deviceToken = Pushy.register(activity.getApplicationContext());
+                String deviceToken = Ut.generateToken();
 
                 Log.d("Pushy", "Pushy device token: " + deviceToken);
-                preferenceManager.putString(KEY_FCM_TOKEN, deviceToken);
+                preferenceManager.putString(DEVICE_TOKEN, deviceToken);
                 saveDeviceToken(deviceToken);
 
                 return deviceToken;

@@ -8,9 +8,7 @@ import android.util.Log;
 import com.parse.Parse;
 import com.shootbot.viximvp.utilities.PropertyReader;
 
-import java.net.URL;
 
-import me.pushy.sdk.Pushy;
 
 public class App extends Application {
     @Override

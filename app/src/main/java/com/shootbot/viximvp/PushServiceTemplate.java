@@ -11,8 +11,8 @@ import android.util.Log;
 import java.util.Timer;
 
 
-public class PushService extends Service {
-    public PushService() {
+public class PushServiceTemplate extends Service {
+    public PushServiceTemplate() {
     }
 
     @Override
@@ -49,7 +49,7 @@ public class PushService extends Service {
 
     public static void start(Context cx) {
         if (!isStarted) {
-            cx.startService(new Intent(cx, PushService.class));
+            cx.startService(new Intent(cx, PushServiceTemplate.class));
         }
     }
 

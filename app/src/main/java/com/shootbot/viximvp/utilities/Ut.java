@@ -2,6 +2,8 @@ package com.shootbot.viximvp.utilities;
 
 import android.content.Context;
 
+import com.shootbot.viximvp.activities.SignInActivity;
+
 import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 
@@ -9,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_CONTENT_TYPE;
 
@@ -46,5 +49,11 @@ public class Ut {
         return headers;
     }
 
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
+    }
 
+    public static boolean isRegistered(Context context) {
+        return true;
+    }
 }

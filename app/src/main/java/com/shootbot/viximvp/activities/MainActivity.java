@@ -33,10 +33,8 @@ import com.shootbot.viximvp.utilities.PreferenceManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.pushy.sdk.Pushy;
-
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
-import static com.shootbot.viximvp.utilities.Constants.KEY_FCM_TOKEN;
+import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_IS_SIGNED_IN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
@@ -60,13 +58,12 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
     private SwipeRefreshLayout swipeRefreshLayout;
     private ImageView imageConference;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Pushy.listen(this);
+        // Pushy.listen(this);
 
         preferenceManager = new PreferenceManager(getApplicationContext());
 
@@ -116,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
                     user.firstName = userObject.getString(KEY_FIRST_NAME);
                     user.lastName = userObject.getString(KEY_LAST_NAME);
                     user.email = userObject.getString(KEY_EMAIL);
-                    user.token = userObject.getString(KEY_FCM_TOKEN);
+                    user.token = userObject.getString(DEVICE_TOKEN);
                     user.isSignedIn = userObject.getBoolean(KEY_IS_SIGNED_IN);
                     if (user.isSignedIn) {
                         users.add(user);

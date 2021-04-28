@@ -16,8 +16,6 @@ import com.shootbot.viximvp.CallNotificationService;
 import com.shootbot.viximvp.activities.MainActivity;
 import com.shootbot.viximvp.utilities.*;
 
-import me.pushy.sdk.Pushy;
-
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
