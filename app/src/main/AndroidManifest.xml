@@ -64,7 +64,7 @@
 <!--        </service>-->
 
         <service
-            android:name=".CallNotificationService"
+            android:name=".network.CallNotificationService"
             android:enabled="true"
             android:exported="false" />
 
@@ -85,7 +85,7 @@
             android:resource="@color/colorBackground" />
 
         <receiver
-            android:name=".activities.CallReceiver"
+            android:name=".network.CallReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -94,7 +94,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".CallNotificationReceiver"
+            android:name=".network.CallNotificationReceiver"
             android:enabled="true"
             android:exported="false"
             android:showOnLockScreen="true" />

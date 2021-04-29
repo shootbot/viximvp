@@ -1,4 +1,4 @@
-package com.shootbot.viximvp;
+package com.shootbot.viximvp.network;
 
 import android.app.Service;
 import android.content.Intent;

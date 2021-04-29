@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Pushy.listen(this);
+        Pushy.listen(this);
 
         preferenceManager = new PreferenceManager(getApplicationContext());
 

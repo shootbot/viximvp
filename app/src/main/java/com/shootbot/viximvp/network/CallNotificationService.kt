@@ -1,4 +1,4 @@
-package com.shootbot.viximvp
+package com.shootbot.viximvp.network
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.shootbot.viximvp.R
 import com.shootbot.viximvp.activities.IncomingInvitationActivity
 import com.shootbot.viximvp.utilities.Constants
 

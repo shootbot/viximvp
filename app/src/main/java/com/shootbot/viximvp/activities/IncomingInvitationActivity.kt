@@ -14,7 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.shootbot.viximvp.CallNotificationService
+import com.shootbot.viximvp.network.CallNotificationService
 import com.shootbot.viximvp.R
 import com.shootbot.viximvp.network.ApiClient
 import com.shootbot.viximvp.network.ApiService

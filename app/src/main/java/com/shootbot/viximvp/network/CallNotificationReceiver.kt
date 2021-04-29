@@ -1,4 +1,4 @@
-package com.shootbot.viximvp
+package com.shootbot.viximvp.network
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -6,8 +6,6 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import com.shootbot.viximvp.activities.IncomingInvitationActivity
-import com.shootbot.viximvp.network.ApiClient
-import com.shootbot.viximvp.network.ApiService
 import com.shootbot.viximvp.utilities.Constants
 import com.shootbot.viximvp.utilities.Ut
 import org.json.JSONArray
