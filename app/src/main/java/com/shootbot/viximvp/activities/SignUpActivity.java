@@ -41,15 +41,12 @@ public class SignUpActivity extends AppCompatActivity {
     private ProgressBar signUpProgressBar;
     private PreferenceManager preferenceManager;
 
-    boolean isAllFieldsChecked = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
         preferenceManager = new PreferenceManager(getApplicationContext());
-
 
         findViewById(R.id.imageBack).setOnClickListener(v -> onBackPressed());
         findViewById(R.id.textSignIn).setOnClickListener(v -> onBackPressed());
@@ -63,40 +60,15 @@ public class SignUpActivity extends AppCompatActivity {
         signUpProgressBar = findViewById(R.id.signUpProgressBar);
 
         buttonSignUp.setOnClickListener(v -> {
-
-            if (CheckAllFields()) {
+            if (checkAllFields()) {
                 signUp();
             }
-            isAllFieldsChecked = CheckAllFields();
-
-//            if (inputFirstName.getText().toString().trim().isEmpty()) {
-//                Toast.makeText(SignUpActivity.this, "Введите имя", Toast.LENGTH_SHORT).show();
-//            } else if (inputLastName.getText().toString().trim().isEmpty()) {
-//                Toast.makeText(SignUpActivity.this, "Введите фамилию", Toast.LENGTH_SHORT).show();
-//            } else if (inputEmail.getText().toString().trim().isEmpty()) {
-//                Toast.makeText(SignUpActivity.this, "Введите адрес электронной почты.", Toast.LENGTH_SHORT).show();
-//            } else if (!Patterns.EMAIL_ADDRESS.matcher(inputEmail.getText().toString()).matches()) {
-//                Toast.makeText(SignUpActivity.this, "Не валидный адрес электронной почты.", Toast.LENGTH_SHORT).show();
-//            } else if (!PASSWORD_PATTERN.matcher(inputPassword.getText().toString()).matches()) {
-//                Toast.makeText(SignUpActivity.this, "Длина пароля должна быть от 6 до 12 символов.", Toast.LENGTH_SHORT).show();
-//            } else if (!inputPassword.getText().toString().trim().equals(inputConfirmPassword.getText().toString().trim())) {
-//                Toast.makeText(SignUpActivity.this, "Пароли не совпадают.", Toast.LENGTH_SHORT).show();
-//            } else {
-//                signUp();
-//            }
         });
     }
 
     private void signUp() {
         buttonSignUp.setVisibility(View.INVISIBLE);
         signUpProgressBar.setVisibility(View.VISIBLE);
-
-        // FirebaseFirestore database = FirebaseFirestore.getInstance();
-        // Map<String, Object> user = new HashMap<>();
-        // user.put(KEY_FIRST_NAME, inputFirstName.getText().toString());
-        // user.put(KEY_LAST_NAME, inputLastName.getText().toString());
-        // user.put(KEY_EMAIL, inputEmail.getText().toString());
-        // user.put(KEY_PASSWORD, inputPassword.getText().toString());
 
         ParseObject userObject = new ParseObject("User");
         userObject.put(KEY_FIRST_NAME, inputFirstName.getText().toString());
@@ -122,26 +94,9 @@ public class SignUpActivity extends AppCompatActivity {
                 Toast.makeText(SignUpActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-        // database.collection(Constants.KEY_COLLECTION_USERS)
-        //         .add(user)
-        //         .addOnSuccessListener(documentReference -> {
-        //             preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
-        //             preferenceManager.putString(KEY_USER_ID, documentReference.getId());
-        //             preferenceManager.putString(KEY_FIRST_NAME, inputFirstName.getText().toString());
-        //             preferenceManager.putString(KEY_LAST_NAME, inputLastName.getText().toString());
-        //             preferenceManager.putString(KEY_EMAIL, inputEmail.getText().toString());
-        //             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        //             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        //             startActivity(intent);
-        //         })
-        //         .addOnFailureListener(e -> {
-        //             signUpProgressBar.setVisibility(View.INVISIBLE);
-        //             buttonSignUp.setVisibility(View.VISIBLE);
-        //             Toast.makeText(SignUpActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        //         });
     }
 
-    private boolean CheckAllFields() {
+    private boolean checkAllFields() {
         if (inputFirstName.length() == 0) {
             inputFirstName.setError("Введите имя");
             return false;
@@ -172,7 +127,6 @@ public class SignUpActivity extends AppCompatActivity {
             return false;
         }
 
-        // after all validation return true.
         return true;
     }
 }

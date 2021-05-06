@@ -33,6 +33,8 @@ import com.shootbot.viximvp.utilities.PreferenceManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.pushy.sdk.Pushy;
+
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;

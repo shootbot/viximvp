@@ -2,6 +2,7 @@ package com.shootbot.viximvp.utilities;
 
 import android.content.Context;
 
+import com.shootbot.viximvp.activities.MainActivity;
 import com.shootbot.viximvp.activities.SignInActivity;
 
 import org.jitsi.meet.sdk.JitsiMeetActivity;
@@ -54,6 +55,11 @@ public class Ut {
     }
 
     public static boolean isRegistered(Context context) {
+        // todo
         return true;
+    }
+
+    public static void listenPushes(Context context) {
+        // todo
     }
 }

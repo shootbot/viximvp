@@ -24,6 +24,6 @@
     <string name="battery_optimization_enabled">Оптимизация батареи включена. Это может прерывать работу push-уведомления, если приложение не открыто</string>
     <string name="disable">Отключить</string>
     <string name="warning">Предупреждение</string>
-    <string name="is_not_available"> не доступен для встречи</string>
+    <string name="is_not_available"> недоступен для встречи</string>
     <string name="unable_to_sign_out">Невозможно выйти</string>
 </resources>

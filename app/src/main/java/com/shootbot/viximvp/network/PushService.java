@@ -33,8 +33,8 @@ public class PushService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        executorService = Executors.newFixedThreadPool(1);
-        mainThreadHandler = HandlerCompat.createAsync(Looper.getMainLooper());
+        // executorService = Executors.newFixedThreadPool(1);
+        // mainThreadHandler = HandlerCompat.createAsync(Looper.getMainLooper());
 
         return Service.START_STICKY;
     }

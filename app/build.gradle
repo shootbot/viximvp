@@ -55,7 +55,7 @@ dependencies {
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
-
+    implementation 'me.pushy:sdk:1.0.67'
 
     implementation ('org.jitsi.react:jitsi-meet-sdk:3.1.0') { transitive = true }
 

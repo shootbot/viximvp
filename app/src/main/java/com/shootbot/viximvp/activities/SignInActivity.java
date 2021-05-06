@@ -22,6 +22,8 @@ import com.shootbot.viximvp.utilities.Ut;
 
 import java.util.regex.Pattern;
 
+import me.pushy.sdk.Pushy;
+
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
@@ -88,7 +90,7 @@ public class SignInActivity extends AppCompatActivity {
                     user.put(KEY_IS_SIGNED_IN, true);
                     user.saveInBackground();
 
-                    if (!Ut.isRegistered(this)) {
+                    if (!Pushy.isRegistered(this)) {
                         new RegisterForPushNotificationsAsync(this).execute();
                     }
 
@@ -164,7 +166,7 @@ public class SignInActivity extends AppCompatActivity {
 
         protected Object doInBackground(Void... params) {
             try {
-                String deviceToken = Ut.generateToken();
+                String deviceToken = Pushy.register(activity.getApplicationContext());
 
                 Log.d("Pushy", "Pushy device token: " + deviceToken);
                 preferenceManager.putString(DEVICE_TOKEN, deviceToken);
