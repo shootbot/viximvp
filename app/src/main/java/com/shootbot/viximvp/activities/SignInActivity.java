@@ -18,14 +18,13 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.utilities.PreferenceManager;
-import com.shootbot.viximvp.utilities.Ut;
 
 import java.util.regex.Pattern;
 
 import me.pushy.sdk.Pushy;
 
-import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
+import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_IS_SIGNED_IN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
@@ -82,33 +81,30 @@ public class SignInActivity extends AppCompatActivity {
         query.whereEqualTo(KEY_EMAIL, inputEmail.getText().toString());
         query.whereEqualTo(KEY_PASSWORD, inputPassword.getText().toString());
         query.findInBackground((result, e) -> {
-            if (e == null) {
-                Log.d("parse", "check credentials ok: " + result.size());
-                if (result.size() > 0) {
-                    ParseObject user = result.get(0);
+            Log.d("parse", "check credentials ok?: " + (e == null && result.size() > 0));
+            if (e == null && result.size() > 0) {
+                ParseObject user = result.get(0);
 
-                    user.put(KEY_IS_SIGNED_IN, true);
-                    user.saveInBackground();
+                user.put(KEY_IS_SIGNED_IN, true);
+                user.saveInBackground();
 
-                    if (!Pushy.isRegistered(this)) {
-                        new RegisterForPushNotificationsAsync(this).execute();
-                    }
-
-                    preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
-                    preferenceManager.putString(KEY_USER_ID, user.getObjectId());
-                    preferenceManager.putString(KEY_FIRST_NAME, user.getString(KEY_FIRST_NAME));
-                    preferenceManager.putString(KEY_LAST_NAME, user.getString(KEY_LAST_NAME));
-                    preferenceManager.putString(KEY_EMAIL, user.getString(KEY_EMAIL));
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
+                if (!Pushy.isRegistered(this)) {
+                    new RegisterForPushNotificationsAsync(this).execute();
                 }
+
+                preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
+                preferenceManager.putString(KEY_USER_ID, user.getObjectId());
+                preferenceManager.putString(KEY_FIRST_NAME, user.getString(KEY_FIRST_NAME));
+                preferenceManager.putString(KEY_LAST_NAME, user.getString(KEY_LAST_NAME));
+                preferenceManager.putString(KEY_EMAIL, user.getString(KEY_EMAIL));
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             } else {
-                Log.d("parse", "check credentials error: " + e.getMessage());
                 signInProgressBar.setVisibility(View.INVISIBLE);
                 buttonSignIn.setVisibility(View.VISIBLE);
-                Log.d("FCM", "Невозможно войти");
-                Toast.makeText(SignInActivity.this, "Пользователь не зарегистрирован", Toast.LENGTH_SHORT).show();
+                Log.d("FCM", "Ошибка входа" + (e == null ? "" : e.getMessage()));
+                Toast.makeText(SignInActivity.this, "Ошибка входа", Toast.LENGTH_SHORT).show();
             }
         });
     }
