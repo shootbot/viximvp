@@ -28,6 +28,7 @@ import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.adapters.UsersAdapter;
 import com.shootbot.viximvp.listeners.UsersListener;
 import com.shootbot.viximvp.models.User;
+import com.shootbot.viximvp.network.PushService;
 import com.shootbot.viximvp.utilities.PreferenceManager;
 
 import java.util.ArrayList;
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         setContentView(R.layout.activity_main);
 
         Pushy.listen(this);
+        Intent i = new Intent(getApplicationContext(), PushService.class);
+        startService(i);
 
         preferenceManager = new PreferenceManager(getApplicationContext());
 
@@ -107,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
             swipeRefreshLayout.setRefreshing(false);
             String myUserId = preferenceManager.getString(KEY_USER_ID);
             if (e == null) {
-                Log.d("parse", "load users ok: " + objects.size());
+                Log.d("parse", "users loaded: " + objects.size());
                 users.clear();
                 for (ParseObject userObject : objects) {
                     if (myUserId.equals(userObject.getObjectId())) continue;

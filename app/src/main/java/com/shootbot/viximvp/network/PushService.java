@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.core.os.HandlerCompat;
 
 import java.util.Timer;
@@ -17,41 +18,33 @@ import java.util.concurrent.Executors;
 
 
 public class PushService extends Service {
-    ExecutorService executorService;
-    Handler mainThreadHandler;
-
-    public PushService() {
-    }
-
+    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
-    static boolean isStarted = false;
-    static Timer timer;
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // executorService = Executors.newFixedThreadPool(1);
-        // mainThreadHandler = HandlerCompat.createAsync(Looper.getMainLooper());
+        Log.d("PushService", "started");
 
-        return Service.START_STICKY;
+        performOnBackgroundThread(new LongPollingThread());
+
+        return Service.START_STICKY;//super.onStartCommand(intent, flags, startId);
     }
 
-    @Override
-    public boolean stopService(Intent name) {
-        timer.cancel();
-        isStarted = false;
-        timer = null;
-        return super.stopService(name);
+    public static Thread performOnBackgroundThread(Runnable runnable) {
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    runnable.run();
+                } finally {
+                    Log.d("PushService", "performOnBackgroundThread finally");
+                }
+            }
+        };
+        t.start();
+        return t;
     }
-
-
-    public static void start(Context cx) {
-        if (!isStarted) {
-            cx.startService(new Intent(cx, PushService.class));
-        }
-    }
-
 }

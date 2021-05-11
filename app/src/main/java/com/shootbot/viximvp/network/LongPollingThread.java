@@ -16,25 +16,16 @@ public class LongPollingThread implements Runnable {
     @Override
     public void run() {
         HttpURLConnection connection = null;
-        BufferedReader rd = null;
-        StringBuilder sb = null;
-        String line = null;
-
-        URL serverAddress = null;
-
         String lastModified = null;
         String etag = null;
 
         while (true) {
             try {
-                serverAddress = new URL("http://localhost:9080/sub/ch1");
-                // set up out communications stuff
+                URL serverAddress = new URL("http://10.0.2.2:9080/sub/ch1");
                 connection = null;
 
-                // Set up the initial connection
                 connection = (HttpURLConnection) serverAddress.openConnection();
                 connection.setRequestMethod("GET");
-                connection.setDoOutput(true);
                 connection.setReadTimeout(600000);
 
                 if (lastModified != null) {
@@ -47,33 +38,43 @@ public class LongPollingThread implements Runnable {
 
                 connection.connect();
 
-                // read the result from the server
-                rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                sb = new StringBuilder();
+                System.out.println("response code: " + connection.getResponseCode());
+                // System.out.println("response message: " + connection.getResponseMessage());
+                // Map<String, List<String>> map = connection.getHeaderFields();
+                // for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                //     String k = entry.getKey();
+                //     List<String> v = entry.getValue();
+                //     System.out.println("key=" + k + ", value=" + v.toString());
+                // }
 
+                BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+
+                String line;
                 while ((line = rd.readLine()) != null) {
                     sb.append(line + '\n');
                 }
 
-
                 lastModified = connection.getHeaderField("Last-Modified");
                 etag = connection.getHeaderField("Etag");
 
-                System.out.println(sb.toString());
+                System.out.println("message: " + sb.toString());
                 System.out.println(String.format("Last-Modified: %s Etag: %s", lastModified, etag));
 
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
             } catch (ProtocolException e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                System.out.println(e.getMessage());
                 e.printStackTrace();
             } catch (IOException e) {
+                System.out.println(e.getMessage());
                 e.printStackTrace();
             } finally {
-                // close the connection, set all objects to null
-                connection.disconnect();
-                rd = null;
-                sb = null;
-                connection = null;
+                if (connection != null) {
+                    connection.disconnect();
+                    connection = null;
+                }
             }
         }
     }
