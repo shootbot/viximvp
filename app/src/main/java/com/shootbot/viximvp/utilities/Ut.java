@@ -2,6 +2,7 @@ package com.shootbot.viximvp.utilities;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
@@ -101,7 +102,7 @@ public class Ut {
 
                 return response.toString();
             } catch (Exception e) {
-                this.exception = e;
+                exception = e;
                 return null;
             }
         }
@@ -110,7 +111,7 @@ public class Ut {
             if (exception != null) {
                 exception.printStackTrace();
             } else {
-                System.out.println(response);
+                Log.d("PushTask", response);
             }
         }
     }

@@ -60,7 +60,6 @@ public class LongPollingThread implements Runnable {
 
                 System.out.println("message: " + sb.toString());
                 System.out.println(String.format("Last-Modified: %s Etag: %s", lastModified, etag));
-
             } catch (ProtocolException e) {
                 System.out.println(e.getMessage());
                 e.printStackTrace();
