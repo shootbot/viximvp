@@ -1,4 +1,4 @@
-package com.shootbot.viximvp.network;
+package com.shootbot.viximvp.ownpushes;
 
 import android.os.Handler;
 

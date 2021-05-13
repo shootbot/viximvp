@@ -92,17 +92,17 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
         textUsername = findViewById(R.id.textUsername);
         textEmail = findViewById(R.id.textEmail);
 
-        User callable = (User) getIntent().getSerializableExtra("user");
+        User receiver = (User) getIntent().getSerializableExtra("user");
 
-        if (callable != null) {
-            textFirstChar.setText(callable.firstName.substring(0, 1));
-            textUsername.setText(String.format("%s %s", callable.firstName, callable.lastName));
-            textEmail.setText(callable.email);
+        if (receiver != null) {
+            textFirstChar.setText(receiver.firstName.substring(0, 1));
+            textUsername.setText(String.format("%s %s", receiver.firstName, receiver.lastName));
+            textEmail.setText(receiver.email);
 
-            Log.d("OutgoingInv", "onCreate intent first name: " + callable.firstName);
-            Log.d("OutgoingInv", "onCreate intent callable token: " + callable.token);
+            Log.d("OutgoingInv", "onCreate receiver first name: " + receiver.firstName);
+            Log.d("OutgoingInv", "onCreate receiver token: " + receiver.token);
         } else {
-            Log.d("OutgoingInv", "onCreate callable is null");
+            Log.d("OutgoingInv", "onCreate receiver is null");
         }
 
         ImageView imageStopInvitation = findViewById(R.id.imageStopInvitation);
@@ -113,32 +113,11 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
                 List<User> receivers = new Gson().fromJson(getIntent().getStringExtra("selectedUsers"), type);
                 cancelInvitation(null, receivers);
             } else {
-                if (callable != null) {
-                    cancelInvitation(callable.token, null);
+                if (receiver != null) {
+                    cancelInvitation(receiver.token, null);
                 }
             }
         });
-
-        // FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
-        //     if (task.isSuccessful() && task.getResult() != null) {
-        //         inviterToken = task.getResult().getToken();
-        //         if (meetingType != null) {
-        //             if (getIntent().getBooleanExtra("isMultiple", false)) {
-        //                 Type type = new TypeToken<ArrayList<User>>() {}.getType();
-        //                 List<User> receivers = new Gson().fromJson(getIntent().getStringExtra("selectedUsers"), type);
-        //                 if (receivers != null) {
-        //                     totalReceivers = receivers.size();
-        //                 }
-        //                 initiateMeeting(meetingType, null, receivers);
-        //             } else {
-        //                 if (user != null) {
-        //                     totalReceivers = 1;
-        //                     initiateMeeting(meetingType, user.token, null);
-        //                 }
-        //             }
-        //         }
-        //     }
-        // });
 
         inviterToken = preferenceManager.getString(DEVICE_TOKEN);
         Log.d("OutgoingInv", "onCreate inviter token: " + inviterToken);
@@ -151,25 +130,25 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
                 }
                 initiateMeeting(meetingType, null, receivers);
             } else {
-                if (callable != null) {
+                if (receiver != null) {
                     totalReceivers = 1;
-                    initiateMeeting(meetingType, callable.token, null);
+                    initiateMeeting(meetingType, receiver.token, null);
                 }
             }
         }
     }
 
-    private void initiateMeeting(String meetingType, String callableToken, List<User> callables) {
+    private void initiateMeeting(String meetingType, String receiverToken, List<User> receivers) {
         try {
             JSONArray tokens = new JSONArray();
-            if (callableToken != null) {
-                tokens.put(callableToken);
+            if (receiverToken != null) {
+                tokens.put(receiverToken);
             }
 
-            if (callables != null && !callables.isEmpty()) {
+            if (receivers != null && !receivers.isEmpty()) {
                 StringBuilder usernames = new StringBuilder();
-                for (int i = 0; i < callables.size(); i++) {
-                    User user = callables.get(i);
+                for (int i = 0; i < receivers.size(); i++) {
+                    User user = receivers.get(i);
                     tokens.put(user.token);
                     usernames.append(user.firstName + " " + user.lastName + "\n");
                 }
@@ -203,6 +182,8 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
     }
 
     private void sendRemoteMessage(String remoteMessageBody, String type) {
+        Ut.pubMessage(remoteMessageBody);
+
         ApiClient.getClient().create(ApiService.class).sendRemoteMessage(
                 Ut.getPushRequestHeaders(),
                 remoteMessageBody)

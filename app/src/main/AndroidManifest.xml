@@ -60,7 +60,7 @@
             android:exported="false" />
 
         <service
-            android:name=".network.PushService"
+            android:name=".ownpushes.PushService"
             android:stopWithTask="false"/>
 
         <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
@@ -74,15 +74,15 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorBackground" />
 
-        <receiver
-            android:name=".network.CallReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
-            </intent-filter>
-        </receiver>
+<!--        <receiver-->
+<!--            android:name=".network.CallReceiver"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.PHONE_STATE" />-->
+<!--                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
         <receiver
             android:name=".network.CallNotificationReceiver"
             android:enabled="true"

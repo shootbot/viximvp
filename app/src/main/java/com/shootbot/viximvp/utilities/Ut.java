@@ -1,15 +1,21 @@
 package com.shootbot.viximvp.utilities;
 
 import android.content.Context;
-
-import com.shootbot.viximvp.activities.MainActivity;
-import com.shootbot.viximvp.activities.SignInActivity;
+import android.os.AsyncTask;
 
 import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -61,5 +67,51 @@ public class Ut {
 
     public static void listenPushes(Context context) {
         // todo
+    }
+
+    public static void pubMessage(String message) {
+        new PubTask().execute(message);
+    }
+
+    static class PubTask extends AsyncTask<String, Void, String> {
+        private Exception exception;
+
+        protected String doInBackground(String... message) {
+            try {
+                URL url = new URL("http://10.0.2.2:9080/pub/?id=ch1");
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                con.setRequestMethod("POST");
+                con.setRequestProperty("Content-Type", "application/json; utf-8");
+                con.setRequestProperty("Accept", "application/json");
+                con.setDoOutput(true);
+                try (OutputStream os = con.getOutputStream()) {
+                    byte[] input = message[0].getBytes(StandardCharsets.UTF_8);
+                    os.write(input, 0, input.length);
+                }
+
+                StringBuilder response = new StringBuilder();
+                try (BufferedReader br = new BufferedReader(
+                        new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+                    String responseLine = null;
+                    while ((responseLine = br.readLine()) != null) {
+                        response.append(responseLine.trim());
+                    }
+
+                }
+
+                return response.toString();
+            } catch (Exception e) {
+                this.exception = e;
+                return null;
+            }
+        }
+
+        protected void onPostExecute(String response) {
+            if (exception != null) {
+                exception.printStackTrace();
+            } else {
+                System.out.println(response);
+            }
+        }
     }
 }

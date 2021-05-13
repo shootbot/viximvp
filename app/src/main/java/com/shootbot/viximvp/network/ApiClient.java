@@ -8,6 +8,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class ApiClient {
     private static Retrofit retrofit = null;
+//    private static Retrofit pub = null;
 
     public static Retrofit getClient() {
         if (retrofit == null) {
@@ -18,4 +19,14 @@ public class ApiClient {
         }
         return retrofit;
     }
+
+//    public static Retrofit getPub() {
+//        if (pub == null) {
+//            pub = new Retrofit.Builder()
+//                    .baseUrl("http://10.0.2.2:9080/pub/?id=ch1")
+//                    .addConverterFactory(ScalarsConverterFactory.create())
+//                    .build();
+//        }
+//        return pub;
+//    }
 }

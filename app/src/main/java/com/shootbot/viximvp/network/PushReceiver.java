@@ -7,7 +7,7 @@ import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.shootbot.viximvp.utilities.*;
+import com.shootbot.viximvp.utilities.Constants;
 
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
@@ -22,36 +22,6 @@ import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_TYPE;
 public class PushReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        // String notificationTitle = "MyApp";
-        // String notificationText = "Test notification";
-        //
-        // // Attempt to extract the "message" property from the payload: {"message":"Hello World!"}
-        // if (intent.getStringExtra("message") != null) {
-        //     notificationText = intent.getStringExtra("message");
-        // }
-
-        ///////////////////////////////////////////////////
-        // Prepare a notification with vibration, sound and lights
-        // NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-        //         .setAutoCancel(true)
-        //         .setSmallIcon(android.R.drawable.ic_dialog_info)
-        //         .setContentTitle(notificationTitle)
-        //         .setContentText(notificationText)
-        //         .setLights(Color.RED, 1000, 1000)
-        //         .setVibrate(new long[]{0, 400, 250, 400})
-        //         .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-        //         .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT));
-        //
-        // // Automatically configure a Notification Channel for devices running Android O+
-        // Pushy.setNotificationChannel(builder, context);
-        //
-        // // Get an instance of the NotificationManager service
-        // NotificationManager notificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
-        //
-        // // Build the notification and display it
-        // notificationManager.notify(1, builder.build());
-        ////////////////////////////////////////////////
-
         Log.d("PushReceiver", "onReceive intent first name: " + intent.getStringExtra(Constants.KEY_FIRST_NAME));
         Log.d("PushReceiver", "onReceive intent inviter token: " + intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN));
         Log.d("PushReceiver", "onReceive intent meeting room: " + intent.getStringExtra(Constants.REMOTE_MSG_MEETING_ROOM));
@@ -67,9 +37,6 @@ public class PushReceiver extends BroadcastReceiver {
             i.putExtra(KEY_EMAIL, intent.getStringExtra(KEY_EMAIL));
             i.putExtra(REMOTE_MSG_INVITER_TOKEN, intent.getStringExtra(REMOTE_MSG_INVITER_TOKEN));
             i.putExtra(REMOTE_MSG_MEETING_ROOM, intent.getStringExtra(REMOTE_MSG_MEETING_ROOM));
-
-            // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            // startActivity(intent)
 
             context.startService(i);
         } else if (REMOTE_MSG_INVITATION_RESPONSE.equals(type)) {

@@ -28,7 +28,7 @@ import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.adapters.UsersAdapter;
 import com.shootbot.viximvp.listeners.UsersListener;
 import com.shootbot.viximvp.models.User;
-import com.shootbot.viximvp.network.PushService;
+import com.shootbot.viximvp.ownpushes.PushService;
 import com.shootbot.viximvp.utilities.PreferenceManager;
 
 import java.util.ArrayList;
@@ -160,16 +160,16 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
     }
 
     @Override
-    public void initiateMeeting(User callable, String meetingType) {
-        if (callable.token == null || callable.token.trim().isEmpty()) {
+    public void initiateMeeting(User receiver, String meetingType) {
+        if (receiver.token == null || receiver.token.trim().isEmpty()) {
             Toast.makeText(
                     this,
-                    callable.firstName + " " + callable.lastName + getString(R.string.is_not_available),
+                    receiver.firstName + " " + receiver.lastName + getString(R.string.is_not_available),
                     Toast.LENGTH_SHORT)
                     .show();
         } else {
             Intent intent = new Intent(getApplicationContext(), OutgoingInvitationActivity.class);
-            intent.putExtra("user", callable);
+            intent.putExtra("user", receiver);
             intent.putExtra("type", meetingType);
             startActivity(intent);
         }
