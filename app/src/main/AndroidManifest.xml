@@ -84,12 +84,12 @@
 
         <!-- Pushy Notification Receiver -->
         <!-- Incoming push notifications will invoke the following BroadcastReceiver -->
-        <receiver android:name=".network.PushReceiver" android:exported="false">
-            <intent-filter>
-                <!-- Do not modify this -->
-                <action android:name="pushy.me" />
-            </intent-filter>
-        </receiver>
+<!--        <receiver android:name=".network.PushReceiver" android:exported="false">-->
+<!--            <intent-filter>-->
+<!--                &lt;!&ndash; Do not modify this &ndash;&gt;-->
+<!--                <action android:name="qcom.shootbot.viximvp.ownpushes.NEW_PUSH" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
 
         <!-- Pushy Update Receiver -->
         <!-- Do not modify - internal BroadcastReceiver that restarts the listener service -->

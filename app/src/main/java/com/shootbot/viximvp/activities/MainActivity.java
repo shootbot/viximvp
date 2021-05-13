@@ -67,10 +67,12 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         setContentView(R.layout.activity_main);
 
         Pushy.listen(this);
-        Intent i = new Intent(getApplicationContext(), PushService.class);
-        startService(i);
 
         preferenceManager = new PreferenceManager(getApplicationContext());
+
+        Intent i = new Intent(getApplicationContext(), PushService.class);
+        i.putExtra(DEVICE_TOKEN, preferenceManager.getString(DEVICE_TOKEN));
+        startService(i);
 
         imageConference = findViewById(R.id.imageConference);
 

@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.shootbot.viximvp.utilities.Constants;
+import com.shootbot.viximvp.utilities.PreferenceManager;
 
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
@@ -22,6 +23,7 @@ import static com.shootbot.viximvp.utilities.Constants.REMOTE_MSG_TYPE;
 public class PushReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.d("PushReceiver", "onReceive intent message: " + intent.getStringExtra("message"));
         Log.d("PushReceiver", "onReceive intent first name: " + intent.getStringExtra(Constants.KEY_FIRST_NAME));
         Log.d("PushReceiver", "onReceive intent inviter token: " + intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN));
         Log.d("PushReceiver", "onReceive intent meeting room: " + intent.getStringExtra(Constants.REMOTE_MSG_MEETING_ROOM));
