@@ -87,9 +87,7 @@ class CallNotificationReceiver : BroadcastReceiver() {
     }
 
     private fun sendRemoteMessage(context: Context?, remoteMessageBody: String, type: String, meetingType: String?, meetingRoom: String?) {
-        // Ut.pubMessage(remoteMessageBody)
-
-        ApiClient.getClient().create(ApiService::class.java).sendRemoteMessage(
+        ApiClient.getClient(context).create(ApiService::class.java).sendRemoteMessage(
                 Ut.getPushRequestHeaders(),
                 remoteMessageBody)
                 .enqueue(object : Callback<String?> {

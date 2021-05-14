@@ -38,17 +38,11 @@ class IncomingInvitationActivity : AppCompatActivity() {
 
         val imageAcceptInvitation = findViewById<ImageView>(R.id.imageAcceptInvitation)
         imageAcceptInvitation.setOnClickListener {
-            sendInvitationResponse(
-                Constants.REMOTE_MSG_INVITATION_ACCEPTED,
-                intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN)
-            )
+            sendInvitationResponse(Constants.REMOTE_MSG_INVITATION_ACCEPTED, intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
         }
         val imageRejectInvitation = findViewById<ImageView>(R.id.imageRejectInvitation)
         imageRejectInvitation.setOnClickListener {
-            sendInvitationResponse(
-                Constants.REMOTE_MSG_INVITATION_REJECTED,
-                intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN)
-            )
+            sendInvitationResponse(Constants.REMOTE_MSG_INVITATION_REJECTED, intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
         }
 
         val isCallAccepted = intent.getBooleanExtra(Constants.IS_CALL_ACCEPTED, false)
@@ -56,11 +50,7 @@ class IncomingInvitationActivity : AppCompatActivity() {
         if (isCallAccepted) {
             imageAcceptInvitation.visibility = View.GONE
             imageRejectInvitation.visibility = View.GONE
-            sendInvitationResponse(
-                Constants.REMOTE_MSG_INVITATION_ACCEPTED,
-                intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN)
-            )
-
+            sendInvitationResponse(Constants.REMOTE_MSG_INVITATION_ACCEPTED, intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
         }
 
         val imageMeetingType = findViewById<ImageView>(R.id.imageMeetingType)
@@ -77,13 +67,8 @@ class IncomingInvitationActivity : AppCompatActivity() {
         if (firstName != null) {
             textFirstChar.text = firstName.substring(0, 1)
         }
-        textUsername.text = String.format(
-            "%s %s",
-            firstName,
-            intent.getStringExtra(Constants.KEY_LAST_NAME)
-        )
+        textUsername.text = String.format("%s %s", firstName, intent.getStringExtra(Constants.KEY_LAST_NAME))
         textEmail.text = intent.getStringExtra(Constants.KEY_EMAIL)
-
     }
 
     private fun sendInvitationResponse(type: String, receiverToken: String?) {
@@ -115,10 +100,9 @@ class IncomingInvitationActivity : AppCompatActivity() {
     }
 
     private fun sendRemoteMessage(remoteMessageBody: String, type: String) {
-        ApiClient.getClient().create(ApiService::class.java).sendRemoteMessage(
-            Ut.getPushRequestHeaders(),
-            remoteMessageBody
-        )
+        ApiClient.getClient(applicationContext)
+            .create(ApiService::class.java)
+            .sendRemoteMessage(Ut.getPushRequestHeaders(), remoteMessageBody)
             .enqueue(object : Callback<String?> {
                 override fun onResponse(call: Call<String?>, response: Response<String?>) {
                     if (response.isSuccessful) {
@@ -132,11 +116,7 @@ class IncomingInvitationActivity : AppCompatActivity() {
                                 cleanNotification()
                                 finish()
                             } catch (e: MalformedURLException) {
-                                Toast.makeText(
-                                    this@IncomingInvitationActivity,
-                                    e.message,
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(this@IncomingInvitationActivity, e.message, Toast.LENGTH_SHORT).show()
                                 cleanNotification()
                                 finish()
                             }
@@ -146,19 +126,14 @@ class IncomingInvitationActivity : AppCompatActivity() {
                             finish()
                         }
                     } else {
-                        Toast.makeText(
-                            this@IncomingInvitationActivity,
-                            response.message(),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(this@IncomingInvitationActivity, response.message(), Toast.LENGTH_SHORT).show()
                         cleanNotification()
                         finish()
                     }
                 }
 
                 override fun onFailure(call: Call<String?>, t: Throwable) {
-                    Toast.makeText(this@IncomingInvitationActivity, t.message, Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this@IncomingInvitationActivity, t.message, Toast.LENGTH_SHORT).show()
                 }
             })
     }
@@ -177,9 +152,7 @@ class IncomingInvitationActivity : AppCompatActivity() {
         super.onStart()
         LocalBroadcastManager
             .getInstance(applicationContext)
-            .registerReceiver(
-                invitationResponseReceiver, IntentFilter(Constants.REMOTE_MSG_INVITATION_RESPONSE)
-            )
+            .registerReceiver(invitationResponseReceiver, IntentFilter(Constants.REMOTE_MSG_INVITATION_RESPONSE))
     }
 
     override fun onStop() {

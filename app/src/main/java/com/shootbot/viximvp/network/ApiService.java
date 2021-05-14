@@ -1,6 +1,5 @@
 package com.shootbot.viximvp.network;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import retrofit2.Call;

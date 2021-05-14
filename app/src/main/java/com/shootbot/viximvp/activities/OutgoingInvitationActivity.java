@@ -180,7 +180,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
     }
 
     private void sendRemoteMessage(String remoteMessageBody, String type) {
-        ApiClient.getClient().create(ApiService.class).sendRemoteMessage(
+        ApiClient.getClient(getApplicationContext()).create(ApiService.class).sendRemoteMessage(
                 Ut.getPushRequestHeaders(),
                 remoteMessageBody)
                 .enqueue(new Callback<String>() {

@@ -18,16 +18,13 @@ public class App extends Application {
         setupParse();
     }
 
-
-
     private void setupParse() {
         PropertyReader pr = new PropertyReader(getApplicationContext(), "app.properties");
-
         String parseServer = pr.getProperty("parse_server");
 
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("vixi-caller")
-                .server("http://10.0.2.2:1337/parse/")
+                .server(parseServer)
                 .build()
         );
     }

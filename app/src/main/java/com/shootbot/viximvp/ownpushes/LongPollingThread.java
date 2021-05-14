@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.shootbot.viximvp.utilities.PropertyReader;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -18,8 +19,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
-import timber.log.Timber;
-
 public class LongPollingThread implements Runnable {
     private Context context;
     private String deviceToken;
@@ -31,14 +30,16 @@ public class LongPollingThread implements Runnable {
 
     @Override
     public void run() {
+        PropertyReader pr = new PropertyReader(context, "app.properties");
+        String subChannel = pr.getProperty("subscription_channel");
+
         HttpURLConnection connection = null;
         String lastModified = null;
         String etag = null;
 
         while (true) {
             try {
-                URL serverAddress = new URL("http://10.0.2.2:9080/sub/ch1");
-                connection = null;
+                URL serverAddress = new URL(subChannel);
 
                 connection = (HttpURLConnection) serverAddress.openConnection();
                 connection.setRequestMethod("GET");
@@ -54,7 +55,7 @@ public class LongPollingThread implements Runnable {
 
                 connection.connect();
 
-                System.out.println("response code: " + connection.getResponseCode());
+                Log.d("LongPollingThread", "response code: " + connection.getResponseCode());
 
                 BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuilder sb = new StringBuilder();
@@ -69,7 +70,7 @@ public class LongPollingThread implements Runnable {
                 etag = connection.getHeaderField("Etag");
 
                 Log.d("LongPollingThread", "message: " + message);
-                Timber.d(String.format("Last-Modified: %s Etag: %s", lastModified, etag));
+                Log.d("LongPollingThread", String.format("Last-Modified: %s Etag: %s", lastModified, etag));
 
                 if (connection.getResponseCode() == 200 && isForMe(message)) {
                     Intent intent = new Intent("com.shootbot.viximvp.ownpushes.NEW_PUSH");
@@ -123,7 +124,11 @@ public class LongPollingThread implements Runnable {
     private Message getMessageObj(String message) {
         Type type = new TypeToken<Message>() {
         }.getType();
-        Message messageObj = new Gson().fromJson(message, type);
-        return messageObj;
+
+        try {
+            return new Gson().fromJson(message, type);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
