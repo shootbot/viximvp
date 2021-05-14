@@ -25,5 +25,5 @@
     <string name="disable">Отключить</string>
     <string name="warning">Предупреждение</string>
     <string name="is_not_available"> недоступен для встречи</string>
-    <string name="unable_to_sign_out">Невозможно выйти</string>
+    <string name="unable_to_sign_out">Ошибка выхода</string>
 </resources>

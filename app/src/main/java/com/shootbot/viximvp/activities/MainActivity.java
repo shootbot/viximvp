@@ -34,10 +34,8 @@ import com.shootbot.viximvp.utilities.PreferenceManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.pushy.sdk.Pushy;
-
-import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
+import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_IS_SIGNED_IN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
@@ -45,13 +43,6 @@ import static com.shootbot.viximvp.utilities.Constants.KEY_OBJECT_ID;
 import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
 import static com.shootbot.viximvp.utilities.Constants.REQUEST_CODE_BATTERY_OPTIMIZATION;
 
-// import com.google.firebase.iid.FcmBroadcastProcessor;
-// import com.google.firebase.iid.FirebaseInstanceId;
-
-// import com.google.firebase.firestore.DocumentReference;
-// import com.google.firebase.firestore.FieldValue;
-// import com.google.firebase.firestore.FirebaseFirestore;
-// import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class MainActivity extends AppCompatActivity implements UsersListener {
     private PreferenceManager preferenceManager;
@@ -66,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Pushy.listen(this);
+        // Pushy.listen(this);
 
         preferenceManager = new PreferenceManager(getApplicationContext());
 
@@ -144,12 +135,12 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
                     userObject.put(KEY_IS_SIGNED_IN, false);
                     userObject.saveInBackground(e1 -> {
                         if (e1 == null) {
-                            Log.d("parse", "token delete ok");
+                            Log.d("parse", "signed out");
                             preferenceManager.clearPreferences();
                             startActivity(new Intent(getApplicationContext(), SignInActivity.class));
                             finish();
                         } else {
-                            Log.d("parse", "token delete error: " + e1.getMessage());
+                            Log.d("parse", "sign out error: " + e1.getMessage());
                             Toast.makeText(MainActivity.this, R.string.unable_to_sign_out, Toast.LENGTH_SHORT).show();
                         }
                     });

@@ -21,8 +21,6 @@ import com.shootbot.viximvp.utilities.PreferenceManager;
 
 import java.util.regex.Pattern;
 
-import me.pushy.sdk.Pushy;
-
 import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
@@ -33,15 +31,6 @@ import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
 
 
 public class SignInActivity extends AppCompatActivity {
-
-    private static final Pattern PASSWORD_PATTERN =
-            Pattern.compile("^" +
-                    "(?=.*[0-9])" +  // как минимум 1 цифра
-                    // "(?=.*[A-Z])" +  // минимум одна большая буква
-                    "(?=.*[a-zA-Z])" +  // любая буква
-                    "(?=\\\\S+$)" +  // no white spaces
-                    ".{6,}" + // как минимум 6 символов
-                    "$");
     private EditText inputEmail, inputPassword;
     private MaterialButton buttonSignIn;
     private ProgressBar signInProgressBar;
@@ -81,29 +70,30 @@ public class SignInActivity extends AppCompatActivity {
         query.whereEqualTo(KEY_EMAIL, inputEmail.getText().toString());
         query.whereEqualTo(KEY_PASSWORD, inputPassword.getText().toString());
         query.findInBackground((result, e) -> {
-            Log.d("parse", "check credentials ok?: " + (e == null && result.size() > 0));
             if (e == null && result.size() > 0) {
+                Log.d("signIn", "credentials check: ok");
                 ParseObject user = result.get(0);
 
                 user.put(KEY_IS_SIGNED_IN, true);
                 user.saveInBackground();
 
-                if (!Pushy.isRegistered(this)) {
-                    new RegisterForPushNotificationsAsync(this).execute();
-                }
+                // if (!Pushy.isRegistered(this)) {
+                //     new RegisterForPushNotificationsAsync(this).execute();
+                // }
 
                 preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
                 preferenceManager.putString(KEY_USER_ID, user.getObjectId());
                 preferenceManager.putString(KEY_FIRST_NAME, user.getString(KEY_FIRST_NAME));
                 preferenceManager.putString(KEY_LAST_NAME, user.getString(KEY_LAST_NAME));
                 preferenceManager.putString(KEY_EMAIL, user.getString(KEY_EMAIL));
+                preferenceManager.putString(DEVICE_TOKEN, user.getString(KEY_EMAIL));
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             } else {
                 signInProgressBar.setVisibility(View.INVISIBLE);
                 buttonSignIn.setVisibility(View.VISIBLE);
-                Log.d("FCM", "Ошибка входа" + (e == null ? "" : e.getMessage()));
+                Log.d("signIn", "Ошибка входа " + (e == null ? "" : e.getMessage()));
                 Toast.makeText(SignInActivity.this, "Ошибка входа", Toast.LENGTH_SHORT).show();
             }
         });
@@ -129,60 +119,60 @@ public class SignInActivity extends AppCompatActivity {
         return true;
     }
 
-    private void saveDeviceToken(String token) {
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
-        query.whereEqualTo("objectId", preferenceManager.getString(KEY_USER_ID));
-        query.findInBackground((objects, e) -> {
-            if (e == null) {
-                Log.d("parse", "search user ok: " + objects.size());
-                for (ParseObject userObject : objects) {
-                    userObject.put(DEVICE_TOKEN, token);
-                    userObject.saveInBackground(ex -> {
-                        if (ex == null) {
-                            Log.d("parse", "token save ok");
-                        } else {
-                            Log.d("parse", "token save error: " + ex.getMessage());
-                            Toast.makeText(SignInActivity.this, "Unable to send token: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            } else {
-                Log.d("parse", "search user error: " + e.getMessage());
-                Toast.makeText(SignInActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private class RegisterForPushNotificationsAsync extends AsyncTask<Void, Void, Object> {
-        private Activity activity;
-
-        public RegisterForPushNotificationsAsync(Activity activity) {
-            this.activity = activity;
-        }
-
-        protected Object doInBackground(Void... params) {
-            try {
-                String deviceToken = Pushy.register(activity.getApplicationContext());
-
-                Log.d("Pushy", "Pushy device token: " + deviceToken);
-                preferenceManager.putString(DEVICE_TOKEN, deviceToken);
-                saveDeviceToken(deviceToken);
-
-                return deviceToken;
-            } catch (Exception exc) {
-                return exc;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Object result) {
-            if (result instanceof Exception) {
-                String message = ((Exception) result).getMessage();
-                Log.d("Pushy", "onPostExecute error: " + message);
-            } else {
-                String message = "Pushy device token: " + result.toString();
-                Log.d("Pushy", "onPostExecute: " + message);
-            }
-        }
-    }
+    // private void saveDeviceToken(String token) {
+    //     ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
+    //     query.whereEqualTo("objectId", preferenceManager.getString(KEY_USER_ID));
+    //     query.findInBackground((objects, e) -> {
+    //         if (e == null) {
+    //             Log.d("parse", "search user ok: " + objects.size());
+    //             for (ParseObject userObject : objects) {
+    //                 userObject.put(DEVICE_TOKEN, token);
+    //                 userObject.saveInBackground(ex -> {
+    //                     if (ex == null) {
+    //                         Log.d("parse", "token save ok");
+    //                     } else {
+    //                         Log.d("parse", "token save error: " + ex.getMessage());
+    //                         Toast.makeText(SignInActivity.this, "Unable to send token: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+    //                     }
+    //                 });
+    //             }
+    //         } else {
+    //             Log.d("parse", "search user error: " + e.getMessage());
+    //             Toast.makeText(SignInActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+    //         }
+    //     });
+    // }
+    //
+    // private class RegisterForPushNotificationsAsync extends AsyncTask<Void, Void, Object> {
+    //     private Activity activity;
+    //
+    //     public RegisterForPushNotificationsAsync(Activity activity) {
+    //         this.activity = activity;
+    //     }
+    //
+    //     protected Object doInBackground(Void... params) {
+    //         try {
+    //             String deviceToken = Pushy.register(activity.getApplicationContext());
+    //
+    //             Log.d("OwnPushes", "device token: " + deviceToken);
+    //             preferenceManager.putString(DEVICE_TOKEN, deviceToken);
+    //             saveDeviceToken(deviceToken);
+    //
+    //             return deviceToken;
+    //         } catch (Exception exc) {
+    //             return exc;
+    //         }
+    //     }
+    //
+    //     @Override
+    //     protected void onPostExecute(Object result) {
+    //         if (result instanceof Exception) {
+    //             String message = ((Exception) result).getMessage();
+    //             Log.d("OwnPushes", "onPostExecute error: " + message);
+    //         } else {
+    //             String message = "OwnPushes device token: " + result.toString();
+    //             Log.d("OwnPushes", "onPostExecute: " + message);
+    //         }
+    //     }
+    // }
 }

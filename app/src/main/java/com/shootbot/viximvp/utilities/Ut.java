@@ -53,21 +53,14 @@ public class Ut {
 
     public static Map<String, String> getPushRequestHeaders() {
         Map<String, String> headers = new HashMap<>();
+        // headers.put(REMOTE_MSG_CONTENT_TYPE, "application/json");
         headers.put(REMOTE_MSG_CONTENT_TYPE, "application/json");
+        headers.put("Accept", "application/json");
         return headers;
     }
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
-    }
-
-    public static boolean isRegistered(Context context) {
-        // todo
-        return true;
-    }
-
-    public static void listenPushes(Context context) {
-        // todo
     }
 
     public static void pubMessage(String message) {

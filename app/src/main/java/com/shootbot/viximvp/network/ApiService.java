@@ -8,11 +8,10 @@ import retrofit2.http.Body;
 import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
 
-import static com.shootbot.viximvp.utilities.Constants.SECRET_API_KEY;
 
 public interface ApiService {
 
-    @POST("push?api_key=" + SECRET_API_KEY)
+    @POST("pub/?id=ch1")
     Call<String> sendRemoteMessage(
             @HeaderMap Map<String, String> headers,
             @Body String remoteBody

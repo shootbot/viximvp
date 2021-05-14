@@ -182,7 +182,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
     }
 
     private void sendRemoteMessage(String remoteMessageBody, String type) {
-        Ut.pubMessage(remoteMessageBody);
+        // Ut.pubMessage(remoteMessageBody);
 
         ApiClient.getClient().create(ApiService.class).sendRemoteMessage(
                 Ut.getPushRequestHeaders(),

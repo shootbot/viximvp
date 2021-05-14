@@ -54,14 +54,6 @@ public class LongPollingThread implements Runnable {
 
                 System.out.println("response code: " + connection.getResponseCode());
 
-                // System.out.println("response message: " + connection.getResponseMessage());
-                // Map<String, List<String>> map = connection.getHeaderFields();
-                // for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-                //     String k = entry.getKey();
-                //     List<String> v = entry.getValue();
-                //     System.out.println("key=" + k + ", value=" + v.toString());
-                // }
-
                 BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuilder sb = new StringBuilder();
 

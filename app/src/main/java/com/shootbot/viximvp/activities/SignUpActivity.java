@@ -16,8 +16,7 @@ import com.parse.ParseObject;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.utilities.PreferenceManager;
 
-import java.util.regex.Pattern;
-
+import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_IS_SIGNED_IN;
@@ -26,16 +25,6 @@ import static com.shootbot.viximvp.utilities.Constants.KEY_PASSWORD;
 import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
 
 public class SignUpActivity extends AppCompatActivity {
-
-    private static final Pattern PASSWORD_PATTERN =
-            Pattern.compile("^" +
-                    "(?=.*[0-9])" +  // как минимум 1 цифра
-                    // "(?=.*[A-Z])" +  // минимум одна большая буква
-                    "(?=.*[a-zA-Z])" +  // любая буква
-                    "(?=\\\\S+$)" +  // no white spaces
-                    ".{6,}" + // как минимум 6 символов
-                    "$");
-
     private EditText inputFirstName, inputLastName, inputEmail, inputPassword, inputConfirmPassword;
     private MaterialButton buttonSignUp;
     private ProgressBar signUpProgressBar;
@@ -60,7 +49,7 @@ public class SignUpActivity extends AppCompatActivity {
         signUpProgressBar = findViewById(R.id.signUpProgressBar);
 
         buttonSignUp.setOnClickListener(v -> {
-            if (checkAllFields()) {
+            if (isAllFieldsOk()) {
                 signUp();
             }
         });
@@ -74,21 +63,23 @@ public class SignUpActivity extends AppCompatActivity {
         userObject.put(KEY_FIRST_NAME, inputFirstName.getText().toString());
         userObject.put(KEY_LAST_NAME, inputLastName.getText().toString());
         userObject.put(KEY_EMAIL, inputEmail.getText().toString());
+        userObject.put(DEVICE_TOKEN, inputEmail.getText().toString());
         userObject.put(KEY_PASSWORD, inputPassword.getText().toString());
-        userObject.put(KEY_IS_SIGNED_IN, false);
+        userObject.put(KEY_IS_SIGNED_IN, true);
         userObject.saveInBackground(e -> {
             if (e == null) {
-                Log.d("parse", "register user ok");
+                Log.d("signUp", "register user ok");
                 preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
                 preferenceManager.putString(KEY_USER_ID, userObject.getObjectId());
                 preferenceManager.putString(KEY_FIRST_NAME, inputFirstName.getText().toString());
                 preferenceManager.putString(KEY_LAST_NAME, inputLastName.getText().toString());
                 preferenceManager.putString(KEY_EMAIL, inputEmail.getText().toString());
+                preferenceManager.putString(DEVICE_TOKEN, inputEmail.getText().toString());
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             } else {
-                Log.d("parse", "register user error: " + e.getMessage());
+                Log.d("signUp", "register user error: " + e.getMessage());
                 signUpProgressBar.setVisibility(View.INVISIBLE);
                 buttonSignUp.setVisibility(View.VISIBLE);
                 Toast.makeText(SignUpActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -96,7 +87,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    private boolean checkAllFields() {
+    private boolean isAllFieldsOk() {
         if (inputFirstName.length() == 0) {
             inputFirstName.setError("Введите имя");
             return false;
