@@ -39,14 +39,16 @@ class IncomingInvitationActivity : AppCompatActivity() {
         val imageAcceptInvitation = findViewById<ImageView>(R.id.imageAcceptInvitation)
         imageAcceptInvitation.setOnClickListener {
             sendInvitationResponse(
-                    Constants.REMOTE_MSG_INVITATION_ACCEPTED,
-                    intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
+                Constants.REMOTE_MSG_INVITATION_ACCEPTED,
+                intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN)
+            )
         }
         val imageRejectInvitation = findViewById<ImageView>(R.id.imageRejectInvitation)
         imageRejectInvitation.setOnClickListener {
             sendInvitationResponse(
-                    Constants.REMOTE_MSG_INVITATION_REJECTED,
-                    intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
+                Constants.REMOTE_MSG_INVITATION_REJECTED,
+                intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN)
+            )
         }
 
         val isCallAccepted = intent.getBooleanExtra(Constants.IS_CALL_ACCEPTED, false)
@@ -55,8 +57,9 @@ class IncomingInvitationActivity : AppCompatActivity() {
             imageAcceptInvitation.visibility = View.GONE
             imageRejectInvitation.visibility = View.GONE
             sendInvitationResponse(
-                    Constants.REMOTE_MSG_INVITATION_ACCEPTED,
-                    intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN))
+                Constants.REMOTE_MSG_INVITATION_ACCEPTED,
+                intent.getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN)
+            )
 
         }
 
@@ -75,9 +78,9 @@ class IncomingInvitationActivity : AppCompatActivity() {
             textFirstChar.text = firstName.substring(0, 1)
         }
         textUsername.text = String.format(
-                "%s %s",
-                firstName,
-                intent.getStringExtra(Constants.KEY_LAST_NAME)
+            "%s %s",
+            firstName,
+            intent.getStringExtra(Constants.KEY_LAST_NAME)
         )
         textEmail.text = intent.getStringExtra(Constants.KEY_EMAIL)
 
@@ -112,43 +115,52 @@ class IncomingInvitationActivity : AppCompatActivity() {
     }
 
     private fun sendRemoteMessage(remoteMessageBody: String, type: String) {
-        // Ut.pubMessage(remoteMessageBody)
-
         ApiClient.getClient().create(ApiService::class.java).sendRemoteMessage(
-                Ut.getPushRequestHeaders(),
-                remoteMessageBody)
-                .enqueue(object : Callback<String?> {
-                    override fun onResponse(call: Call<String?>, response: Response<String?>) {
-                        if (response.isSuccessful) {
-                            if (type == Constants.REMOTE_MSG_INVITATION_ACCEPTED) {
-                                try {
-                                    Ut.launchConference(
-                                            this@IncomingInvitationActivity,
-                                            intent.getStringExtra(Constants.REMOTE_MSG_MEETING_ROOM),
-                                            meetingType)
-                                    cleanNotification()
-                                    finish()
-                                } catch (e: MalformedURLException) {
-                                    Toast.makeText(this@IncomingInvitationActivity, e.message, Toast.LENGTH_SHORT).show()
-                                    cleanNotification()
-                                    finish()
-                                }
-                            } else {
-                                // Toast.makeText(IncomingInvitationActivity.this, "Invitation rejected", Toast.LENGTH_SHORT).show();
+            Ut.getPushRequestHeaders(),
+            remoteMessageBody
+        )
+            .enqueue(object : Callback<String?> {
+                override fun onResponse(call: Call<String?>, response: Response<String?>) {
+                    if (response.isSuccessful) {
+                        if (type == Constants.REMOTE_MSG_INVITATION_ACCEPTED) {
+                            try {
+                                Ut.launchConference(
+                                    this@IncomingInvitationActivity,
+                                    intent.getStringExtra(Constants.REMOTE_MSG_MEETING_ROOM),
+                                    meetingType
+                                )
+                                cleanNotification()
+                                finish()
+                            } catch (e: MalformedURLException) {
+                                Toast.makeText(
+                                    this@IncomingInvitationActivity,
+                                    e.message,
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 cleanNotification()
                                 finish()
                             }
                         } else {
-                            Toast.makeText(this@IncomingInvitationActivity, response.message(), Toast.LENGTH_SHORT).show()
+                            // Toast.makeText(IncomingInvitationActivity.this, "Invitation rejected", Toast.LENGTH_SHORT).show();
                             cleanNotification()
                             finish()
                         }
+                    } else {
+                        Toast.makeText(
+                            this@IncomingInvitationActivity,
+                            response.message(),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        cleanNotification()
+                        finish()
                     }
+                }
 
-                    override fun onFailure(call: Call<String?>, t: Throwable) {
-                        Toast.makeText(this@IncomingInvitationActivity, t.message, Toast.LENGTH_SHORT).show()
-                    }
-                })
+                override fun onFailure(call: Call<String?>, t: Throwable) {
+                    Toast.makeText(this@IncomingInvitationActivity, t.message, Toast.LENGTH_SHORT)
+                        .show()
+                }
+            })
     }
 
     private val invitationResponseReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -164,16 +176,17 @@ class IncomingInvitationActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         LocalBroadcastManager
-                .getInstance(applicationContext)
-                .registerReceiver(invitationResponseReceiver, IntentFilter(Constants.REMOTE_MSG_INVITATION_RESPONSE)
-                )
+            .getInstance(applicationContext)
+            .registerReceiver(
+                invitationResponseReceiver, IntentFilter(Constants.REMOTE_MSG_INVITATION_RESPONSE)
+            )
     }
 
     override fun onStop() {
         super.onStop()
         LocalBroadcastManager
-                .getInstance(applicationContext)
-                .unregisterReceiver(invitationResponseReceiver)
+            .getInstance(applicationContext)
+            .unregisterReceiver(invitationResponseReceiver)
     }
 
     override fun onDestroy() {
@@ -187,8 +200,8 @@ class IncomingInvitationActivity : AppCompatActivity() {
             setTurnScreenOn(true)
         } else {
             window.addFlags(
-                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                            or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                        or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
             )
         }
 
@@ -205,8 +218,8 @@ class IncomingInvitationActivity : AppCompatActivity() {
             setTurnScreenOn(false)
         } else {
             window.clearFlags(
-                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                            or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                        or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
             )
         }
     }

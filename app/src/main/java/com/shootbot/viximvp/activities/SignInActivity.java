@@ -1,8 +1,6 @@
 package com.shootbot.viximvp.activities;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -18,8 +16,6 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.shootbot.viximvp.R;
 import com.shootbot.viximvp.utilities.PreferenceManager;
-
-import java.util.regex.Pattern;
 
 import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
 import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
@@ -77,10 +73,6 @@ public class SignInActivity extends AppCompatActivity {
                 user.put(KEY_IS_SIGNED_IN, true);
                 user.saveInBackground();
 
-                // if (!Pushy.isRegistered(this)) {
-                //     new RegisterForPushNotificationsAsync(this).execute();
-                // }
-
                 preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
                 preferenceManager.putString(KEY_USER_ID, user.getObjectId());
                 preferenceManager.putString(KEY_FIRST_NAME, user.getString(KEY_FIRST_NAME));
@@ -118,61 +110,4 @@ public class SignInActivity extends AppCompatActivity {
 
         return true;
     }
-
-    // private void saveDeviceToken(String token) {
-    //     ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
-    //     query.whereEqualTo("objectId", preferenceManager.getString(KEY_USER_ID));
-    //     query.findInBackground((objects, e) -> {
-    //         if (e == null) {
-    //             Log.d("parse", "search user ok: " + objects.size());
-    //             for (ParseObject userObject : objects) {
-    //                 userObject.put(DEVICE_TOKEN, token);
-    //                 userObject.saveInBackground(ex -> {
-    //                     if (ex == null) {
-    //                         Log.d("parse", "token save ok");
-    //                     } else {
-    //                         Log.d("parse", "token save error: " + ex.getMessage());
-    //                         Toast.makeText(SignInActivity.this, "Unable to send token: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
-    //                     }
-    //                 });
-    //             }
-    //         } else {
-    //             Log.d("parse", "search user error: " + e.getMessage());
-    //             Toast.makeText(SignInActivity.this, "Unable to send token: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-    //         }
-    //     });
-    // }
-    //
-    // private class RegisterForPushNotificationsAsync extends AsyncTask<Void, Void, Object> {
-    //     private Activity activity;
-    //
-    //     public RegisterForPushNotificationsAsync(Activity activity) {
-    //         this.activity = activity;
-    //     }
-    //
-    //     protected Object doInBackground(Void... params) {
-    //         try {
-    //             String deviceToken = Pushy.register(activity.getApplicationContext());
-    //
-    //             Log.d("OwnPushes", "device token: " + deviceToken);
-    //             preferenceManager.putString(DEVICE_TOKEN, deviceToken);
-    //             saveDeviceToken(deviceToken);
-    //
-    //             return deviceToken;
-    //         } catch (Exception exc) {
-    //             return exc;
-    //         }
-    //     }
-    //
-    //     @Override
-    //     protected void onPostExecute(Object result) {
-    //         if (result instanceof Exception) {
-    //             String message = ((Exception) result).getMessage();
-    //             Log.d("OwnPushes", "onPostExecute error: " + message);
-    //         } else {
-    //             String message = "OwnPushes device token: " + result.toString();
-    //             Log.d("OwnPushes", "onPostExecute: " + message);
-    //         }
-    //     }
-    // }
 }

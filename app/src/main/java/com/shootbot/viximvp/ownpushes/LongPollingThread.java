@@ -18,6 +18,8 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
+import timber.log.Timber;
+
 public class LongPollingThread implements Runnable {
     private Context context;
     private String deviceToken;
@@ -66,8 +68,8 @@ public class LongPollingThread implements Runnable {
                 lastModified = connection.getHeaderField("Last-Modified");
                 etag = connection.getHeaderField("Etag");
 
-                System.out.println("message: " + message);
-                System.out.println(String.format("Last-Modified: %s Etag: %s", lastModified, etag));
+                Log.d("LongPollingThread", "message: " + message);
+                Timber.d(String.format("Last-Modified: %s Etag: %s", lastModified, etag));
 
                 if (connection.getResponseCode() == 200 && isForMe(message)) {
                     Intent intent = new Intent("com.shootbot.viximvp.ownpushes.NEW_PUSH");
@@ -75,13 +77,10 @@ public class LongPollingThread implements Runnable {
                     context.sendBroadcast(intent);
                 }
             } catch (ProtocolException e) {
-                System.out.println(e.getMessage());
                 e.printStackTrace();
             } catch (MalformedURLException e) {
-                System.out.println(e.getMessage());
                 e.printStackTrace();
             } catch (IOException e) {
-                System.out.println(e.getMessage());
                 e.printStackTrace();
             } finally {
                 if (connection != null) {

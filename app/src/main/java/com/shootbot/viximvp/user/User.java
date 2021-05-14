@@ -1,4 +1,4 @@
-package com.shootbot.viximvp.models;
+package com.shootbot.viximvp.user;
 
 
 

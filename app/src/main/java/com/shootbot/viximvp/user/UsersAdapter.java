@@ -1,4 +1,4 @@
-package com.shootbot.viximvp.adapters;
+package com.shootbot.viximvp.user;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +11,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.shootbot.viximvp.R;
-import com.shootbot.viximvp.listeners.UsersListener;
-import com.shootbot.viximvp.models.User;
 
 import java.util.ArrayList;
 import java.util.List;

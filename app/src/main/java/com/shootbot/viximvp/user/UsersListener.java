@@ -1,6 +1,4 @@
-package com.shootbot.viximvp.listeners;
-
-import com.shootbot.viximvp.models.User;
+package com.shootbot.viximvp.user;
 
 public interface  UsersListener {
 

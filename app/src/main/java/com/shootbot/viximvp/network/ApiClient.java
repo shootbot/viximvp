@@ -13,7 +13,6 @@ public class ApiClient {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
                     // .baseUrl(Constants.PUSHY_API_URL)
-                    //.baseUrl("http://10.0.2.2:9080/pub/?id=ch1")
                     .baseUrl("http://10.0.2.2:9080/")
                     .addConverterFactory(ScalarsConverterFactory.create())
                     .build();

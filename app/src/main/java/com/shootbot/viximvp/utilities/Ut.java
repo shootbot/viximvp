@@ -42,70 +42,10 @@ public class Ut {
         JitsiMeetActivity.launch(context, builder.build());
     }
 
-    // public static Map<String, String> getRemoteMessageHeaders() {
-    //     Map<String, String> headers = new HashMap<>();
-    //     headers.put(
-    //             REMOTE_MSG_AUTHORIZATION,
-    //             "key=AAAAeIZ_bbI:APA91bEwzIbOQIgRwa5U5rql98c4Z8HoNHAe3fAuEL8EBhcWl_vIGTT_8kCzSzq7pgSwnV98lz-zCjMfRpqWBOrqFNFdIY3m8XEpZDs9yv1nKKyZIw7D438BJ9nROH5bc-1_0ICbSV_U");
-    //     headers.put(REMOTE_MSG_CONTENT_TYPE, "application/json");
-    //     return headers;
-    // }
-
     public static Map<String, String> getPushRequestHeaders() {
         Map<String, String> headers = new HashMap<>();
-        // headers.put(REMOTE_MSG_CONTENT_TYPE, "application/json");
         headers.put(REMOTE_MSG_CONTENT_TYPE, "application/json");
         headers.put("Accept", "application/json");
         return headers;
-    }
-
-    public static String generateToken() {
-        return UUID.randomUUID().toString();
-    }
-
-    public static void pubMessage(String message) {
-        new PubTask().execute(message);
-    }
-
-    static class PubTask extends AsyncTask<String, Void, String> {
-        private Exception exception;
-
-        protected String doInBackground(String... message) {
-            try {
-                URL url = new URL("http://10.0.2.2:9080/pub/?id=ch1");
-                HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                con.setRequestMethod("POST");
-                con.setRequestProperty("Content-Type", "application/json; utf-8");
-                con.setRequestProperty("Accept", "application/json");
-                con.setDoOutput(true);
-                try (OutputStream os = con.getOutputStream()) {
-                    byte[] input = message[0].getBytes(StandardCharsets.UTF_8);
-                    os.write(input, 0, input.length);
-                }
-
-                StringBuilder response = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(
-                        new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
-                    String responseLine = null;
-                    while ((responseLine = br.readLine()) != null) {
-                        response.append(responseLine.trim());
-                    }
-
-                }
-
-                return response.toString();
-            } catch (Exception e) {
-                exception = e;
-                return null;
-            }
-        }
-
-        protected void onPostExecute(String response) {
-            if (exception != null) {
-                exception.printStackTrace();
-            } else {
-                Log.d("PushTask", response);
-            }
-        }
     }
 }

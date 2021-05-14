@@ -25,9 +25,9 @@ import com.google.gson.Gson;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.shootbot.viximvp.R;
-import com.shootbot.viximvp.adapters.UsersAdapter;
-import com.shootbot.viximvp.listeners.UsersListener;
-import com.shootbot.viximvp.models.User;
+import com.shootbot.viximvp.user.UsersAdapter;
+import com.shootbot.viximvp.user.UsersListener;
+import com.shootbot.viximvp.user.User;
 import com.shootbot.viximvp.ownpushes.PushService;
 import com.shootbot.viximvp.utilities.PreferenceManager;
 
@@ -57,12 +57,9 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Pushy.listen(this);
-
         preferenceManager = new PreferenceManager(getApplicationContext());
 
         Intent i = new Intent(getApplicationContext(), PushService.class);
-        i.putExtra(DEVICE_TOKEN, preferenceManager.getString(DEVICE_TOKEN));
         startService(i);
 
         imageConference = findViewById(R.id.imageConference);

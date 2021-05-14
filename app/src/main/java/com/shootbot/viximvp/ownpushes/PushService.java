@@ -10,6 +10,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.shootbot.viximvp.network.PushReceiver;
+import com.shootbot.viximvp.utilities.PreferenceManager;
 
 import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
 
@@ -35,9 +36,10 @@ public class PushService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("PushService", "started");
 
-        performOnBackgroundThread(new LongPollingThread(this, intent.getStringExtra(DEVICE_TOKEN)));
+        PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
+        performOnBackgroundThread(new LongPollingThread(this, preferenceManager.getString(DEVICE_TOKEN)));
 
-        return Service.START_STICKY;//super.onStartCommand(intent, flags, startId);
+        return Service.START_STICKY;
     }
 
     public static Thread performOnBackgroundThread(Runnable runnable) {

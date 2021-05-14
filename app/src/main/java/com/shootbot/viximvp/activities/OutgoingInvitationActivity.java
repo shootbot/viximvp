@@ -15,12 +15,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-// import com.google.common.reflect.TypeToken;
-// import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.shootbot.viximvp.R;
-import com.shootbot.viximvp.models.User;
+import com.shootbot.viximvp.user.User;
 import com.shootbot.viximvp.network.ApiClient;
 import com.shootbot.viximvp.network.ApiService;
 import com.shootbot.viximvp.utilities.PreferenceManager;
@@ -40,8 +38,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.DEVICE_TOKEN;
+import static com.shootbot.viximvp.utilities.Constants.KEY_EMAIL;
 import static com.shootbot.viximvp.utilities.Constants.KEY_FIRST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_LAST_NAME;
 import static com.shootbot.viximvp.utilities.Constants.KEY_USER_ID;
@@ -123,7 +121,8 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
         Log.d("OutgoingInv", "onCreate inviter token: " + inviterToken);
         if (meetingType != null) {
             if (getIntent().getBooleanExtra("isMultiple", false)) {
-                Type type = new TypeToken<ArrayList<User>>() {}.getType();
+                Type type = new TypeToken<ArrayList<User>>() {
+                }.getType();
                 List<User> receivers = new Gson().fromJson(getIntent().getStringExtra("selectedUsers"), type);
                 if (receivers != null) {
                     totalReceivers = receivers.size();
@@ -167,7 +166,6 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
             data.put(KEY_EMAIL, preferenceManager.getString(KEY_EMAIL));
             data.put(REMOTE_MSG_INVITER_TOKEN, inviterToken);
 
-            // wtf substring(0, 5) выглядит подозрительно
             meetingRoom = preferenceManager.getString(KEY_USER_ID) + "_" + UUID.randomUUID().toString().substring(0, 5);
             data.put(REMOTE_MSG_MEETING_ROOM, meetingRoom);
 
@@ -182,8 +180,6 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
     }
 
     private void sendRemoteMessage(String remoteMessageBody, String type) {
-        // Ut.pubMessage(remoteMessageBody);
-
         ApiClient.getClient().create(ApiService.class).sendRemoteMessage(
                 Ut.getPushRequestHeaders(),
                 remoteMessageBody)
@@ -273,7 +269,7 @@ public class OutgoingInvitationActivity extends AppCompatActivity {
         LocalBroadcastManager
                 .getInstance(getApplicationContext())
                 .registerReceiver(invitationResponseReceiver, new IntentFilter(REMOTE_MSG_INVITATION_RESPONSE)
-        );
+                );
     }
 
     @Override
